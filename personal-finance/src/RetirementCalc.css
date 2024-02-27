@@ -1,0 +1,64 @@
+.rotated-text {
+    transform: rotate(45deg);
+}
+
+table {
+  width: 100%; 
+  border-collapse: collapse; 
+  background-color: #202020; 
+  color: rgb(191, 191, 191);
+}
+
+th {
+  border: 3px solid black; 
+  color: rgb(255, 255, 255);
+}
+
+.smolrow {
+  font-size: 10px;
+}
+
+.headers{
+  font-size: 32px;
+  font-weight: bold;
+}
+
+td {
+  border: 1px  solid #303030; 
+  padding: 5px; 
+}
+
+th {
+  background-color: #b10000;
+}
+
+.thickBorder{
+  border-right: 5px solid #151515;
+}
+
+.chartHolder{
+  width: 100%;
+  background-color: rgb(0, 0, 0); 
+}
+.chartTitle{
+  color: red;
+  padding-top: 100px;
+}
+.chart{
+  background-color: rgb(0, 0, 0); 
+  margin: auto;
+}
+
+input{
+  background-color: rgb(63, 63, 63);
+  color: rgb(255, 255, 255);
+  text-align: center;
+}
+
+.smallInput{
+  width: 35px;
+}
+
+.largeInput{
+  width: 70px;
+}
