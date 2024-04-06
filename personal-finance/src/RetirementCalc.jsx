@@ -1,63 +1,91 @@
 import React from 'react';
 import "./RetirementCalc.css";
+import { Tooltip as ReactToolTip} from 'react-tooltip';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend } from 'recharts';
 
 class RetirementCalc extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
-      //birthDate: '', age: null, currentTenure: 0, currentSalary: 75000,
-      //personal401KContribution:  0, employer401KMatch: 0, intialBalance401k: 0, initialBalanceESOP: 0
-
-       // my info - > replace with default values 
-      birthDate: '1999-04-03', age: null, currentTenure: 1, currentSalary: 95130,
-      personal401KContribution: 0.03, employer401KMatch: 0.03, initialBalance401k: 5300, initialBalanceESOP: 0 
+      birthDate: '01/01/2000', currentTenure: 0, currentSalary: 50000, yearlyRaise: 5,
+      initialBalance401k: 0, personal401KContribution: 5, employer401KMatch: 0, expected401kYoY: 7, variance401kYoY: 10,
+      initialBalanceStock: 0, allocationStock: 10, allocationStockVariance: 1, expectedStockYoY: 20, varianceStockYoY: 10, vestingPeriodStock: 5
     }; 
 
     this.handleBDayChange = this.handleBDayChange.bind(this);
-    this.handleTenureChange = this.handleTenureChange.bind(this);
+    this.handleTenureChange = this.handleTenureChange.bind(this);    
     this.handleSalaryChange = this.handleSalaryChange.bind(this);
+    this.handleRaiseChange = this.handleRaiseChange.bind(this);
+
+    this.handle401KBalanceChange = this.handle401KBalanceChange.bind(this);
     this.handlePersonal401kContributionChange = this.handlePersonal401kContributionChange.bind(this);
     this.handleEmployer401kMatchChange = this.handleEmployer401kMatchChange.bind(this);
-    this.handle401KBalanceChange = this.handle401KBalanceChange.bind(this);
-    this.handleESOPBalanceChange = this.handleESOPBalanceChange.bind(this);
+    this.handleExpected401kYoYChange = this.handleExpected401kYoYChange.bind(this);
+    this.handle401kYoYVarianceChange = this.handle401kYoYVarianceChange.bind(this);
+
+    this.handleStockBalanceChange = this.handleStockBalanceChange.bind(this);
+    this.handleStockAllocationChange = this.handleStockAllocationChange.bind(this);
+    this.handleStockAllocationVarianceChange = this.handleStockAllocationVarianceChange.bind(this);
+    this.handleExpectedStockYoYChange = this.handleExpectedStockYoYChange.bind(this);
+    this.handleStockYoYVarianceChange = this.handleStockYoYVarianceChange.bind(this);
+    this.handleVestingPeriodChange = this.handleVestingPeriodChange.bind(this);
   }
 
   handleBDayChange(event) {
     event.preventDefault();
-    this.setState({ birthDate: event.target.value })
-  }
+    this.setState({ birthDate: event.target.value })}
   handleTenureChange(event) {
     event.preventDefault();
-    this.setState({ currentTenure: event.target.value })
-  }
+    this.setState({ currentTenure: event.target.value })}
+  handleRaiseChange(event) {
+    event.preventDefault();
+    this.setState({ yearlyRaise: event.target.value })}
   handleSalaryChange(event) {
     event.preventDefault();
-    this.setState({ currentSalary: event.target.value })
-  }
+    this.setState({ currentSalary: event.target.value })}
+
   handlePersonal401kContributionChange(event) {
     event.preventDefault();
-    this.setState({ personal401KContribution: event.target.value })
-  }
+    this.setState({ personal401KContribution: event.target.value })}
   handleEmployer401kMatchChange(event) {
     event.preventDefault();
-    this.setState({ employer401KMatch: event.target.value })
-  }
+    this.setState({ employer401KMatch: event.target.value })}
   handle401KBalanceChange(event) {
     event.preventDefault();
-    this.setState({ initialBalance401k: event.target.value })
-  }
-  handleESOPBalanceChange(event) {
+    this.setState({ initialBalance401k: event.target.value })}
+  handleExpected401kYoYChange(event) {
     event.preventDefault();
-    this.setState({ initialBalanceESOP: event.target.value })
-  }
+    this.setState({ expected401kYoY: event.target.value })}
+  handle401kYoYVarianceChange(event) {
+    event.preventDefault();
+    this.setState({ variance401kYoY: event.target.value })}
 
+  handleStockBalanceChange(event) {
+    event.preventDefault();
+    this.setState({ initialBalanceStock: event.target.value })}
+    handleStockAllocationChange(event) {
+      event.preventDefault();
+      this.setState({ allocPercentStock: event.target.value })}
+    handleStockAllocationVarianceChange(event) {
+      event.preventDefault();
+      this.setState({ allocationStockVariance: event.target.value })}
+  handleExpectedStockYoYChange(event) {
+    event.preventDefault();
+    this.setState({ expectedStockYoY: event.target.value })}
+  handleStockYoYVarianceChange(event) {
+    event.preventDefault();
+    this.setState({ varianceStockYoY: event.target.value })}
+    handleVestingPeriodChange(event) {
+    event.preventDefault();
+    this.setState({ vestingPeriodStock: event.target.value })}
   calculateTable(){
     
   }
   
 
   render() {
+    const contributionLimit401k = 22500;
+
     const tableData = [];
 
     const birthDate = new Date(this.state.birthDate);
@@ -68,96 +96,70 @@ class RetirementCalc extends React.Component {
     let tenure = this.state.currentTenure;
     let salary = this.state.currentSalary;
 
-    let personal401KContribution = this.state.personal401KContribution; // changing breaks logic -> move logic outside of render method and include in onChange
-    const employer401KMatch = this.state.employer401KMatch; // changing breaks logic -> move logic outside of render method and include in onChange
-    const contributionLimit401k = 22500;
+    let balance401k = this.state.initialBalance401k; 
+    let balanceStock = this.state.initialBalanceStock; 
 
-    
-    const annualRaise = 0.05; // table input
+    const vestingPeriod = this.state.vestingPeriodStock; 
 
-    let balance401k = this.state.initialBalance401k; // changing breaks logic -> move logic outside of render method and include in onChange
-    let balanceESOP = this.state.initialBalanceESOP; // changing breaks logic -> move logic outside of render method and include in onChange
+    let year = today.getFullYear();
+    let balanceYearVestedStock;
+    for (; age <= 67; tenure++) {
 
-    let allocPercentESOP = 0.2; // input?
-    const vestingPeriod = 5; // input
+      let employerContributionPercent401k = Math.min(this.state.employer401KMatch, this.state.personal401KContribution);
+      let totalContributionPercent401k = (this.state.personal401KContribution + employerContributionPercent401k) /100; 
+      let contributionDollars401k = Math.min(salary * totalContributionPercent401k , contributionLimit401k);
+      //if(contributionDollars401k === contributionLimit401k){ // not exactly right
+        //totalContributionPercent401k = contributionLimit401k / salary;
+        // personal401KContribution = totalContributionPercent401k/2;
+        //employerContributionPercent401k = Math.min(this.state.employer401KMatch, this.state.personal401KContribution);
+      //}
 
-    const assumedDeathAge = 100; // input
-    //const retirementSalaryGoal = 150000; // input
-    const retirementAge = 67; // input
-
-    let year = today.getFullYear(); // getYear?
-    let balanceYearVestedESOP;
-    let firstRow = true;
-    for (; age <= retirementAge; tenure++) {
-
-      let employerContributionPercent401k = Math.min(employer401KMatch, personal401KContribution);
-      let totalContributionPercent401k = personal401KContribution + employerContributionPercent401k; 
-      let contributionDollars401k = Math.min(salary * totalContributionPercent401k, contributionLimit401k);
-      if(contributionDollars401k === contributionLimit401k){ // not exactly right
-        totalContributionPercent401k = contributionLimit401k / salary;
-        personal401KContribution = totalContributionPercent401k/2;
-        employerContributionPercent401k = Math.min(employer401KMatch, personal401KContribution);
-      }
-
-      const YoY401k = (Math.random()*12- 1)/100 ; // -1% to 11% range -> 5% benchmark
-      const YoYESOP = (Math.random()*30)/100 ; // 0% to 30% range -> 20% benchmark (make these parameters inputs to eliminate any potential proprietary info)
+      const YoY401k = ( Math.random() * (this.state.variance401kYoY*2) - (this.state.variance401kYoY-this.state.expected401kYoY) ) / 100 ;
+      const YoYStock = ( Math.random() * (this.state.varianceStockYoY*2) - (this.state.varianceStockYoY-this.state.expectedStockYoY) ) / 100 ;
 
       let appreciation401k = balance401k * YoY401k;
-      let appreciationESOP = balanceESOP * YoYESOP;
+      let appreciationStock = balanceStock * YoYStock;
 
-      if(firstRow){
-        appreciation401k = 0;
-        contributionDollars401k = 0;
-
-        appreciationESOP = 0;
-        allocPercentESOP = 0;
-      } else {
-        allocPercentESOP = 0.2;
-      }
-      
-      const allocDollarsESOP = salary * allocPercentESOP;
-      //const YoYESOP = 0.15;
+      const allocPercentStock = ( Math.random() * (this.state.allocationStockVariance*2) - (this.state.allocationStockVariance-this.state.allocationStock) ) / 100 ;
+      const allocDollarsStock = salary * this.state.allocationStock;
 
       balance401k = balance401k + contributionDollars401k + appreciation401k;
-      balanceESOP = balanceESOP + allocDollarsESOP + appreciationESOP;
+      balanceStock = balanceStock + allocDollarsStock + appreciationStock;
 
-      const vestedPercentESOP = Math.min(tenure / vestingPeriod, 1);
-      const vestedBalanceESOP = vestedPercentESOP * balanceESOP;
+      const vestedPercentStock = Math.min(tenure / vestingPeriod, 1);
+      const vestedBalanceStock = vestedPercentStock * balanceStock;
 
-      const totalRetirement = balance401k + vestedBalanceESOP;
-      const retirementSalary = totalRetirement/(assumedDeathAge - age);
+      const totalRetirement = balance401k + vestedBalanceStock;
 
       tableData.push({
         year,
         age,
         tenure,
-        annualRaise,
         salary,
-        personal401KContribution,
-        employerContributionPercent401k,
+
         totalContributionPercent401k,
         contributionDollars401k,
         YoY401k,
         appreciation401k,
         balance401k,
-        allocPercentESOP,
-        allocDollarsESOP,
-        YoYESOP,
-        appreciationESOP,
-        vestedPercentESOP,
-        balanceESOP,
-        vestedBalanceESOP,
+
+        allocPercentStock,
+        allocDollarsStock,
+        YoYStock,     
+        appreciationStock,
+        balanceStock,
+        vestedPercentStock,
+        vestedBalanceStock,
+
         totalRetirement,
-        retirementSalary,
       });
 
       year++;
       age++;
-      salary *= 1+ annualRaise;
-      firstRow = false;
+      salary *= 1 + this.state.yearlyRaise / 100;
 
-      if(tenure === vestingPeriod+1){ // log balance at vesting time
-        balanceYearVestedESOP = balanceESOP;
+      if(tenure === vestingPeriod+1){
+        balanceYearVestedStock = balanceStock;
       }
     }
 
@@ -175,80 +177,162 @@ class RetirementCalc extends React.Component {
     return( 
     <>
       <form>
-      <label>Birthday: <input type="date" value={this.state.birthDate} onChange={this.handleBDayChange}/></label>
-      <label>Personal 401k Contribution: <input type="text" value={this.state.personal401KContribution} onChange={this.handlePersonal401kContributionChange}/></label>
-      <label>Employer 401k Match: <input type="text" value={this.state.employer401KMatch} onChange={this.handleEmployer401kMatchChange}/></label>
+        <div className='test'>
 
-      
+          <h2 className='input-sectionTitle'>
+            Input Fields
+            <p className='input-subtitle'>
+            Fill in your own info or enter some sample info just to check out the results
+            </p>
+            <p className='input-subtitle'>
+            After you're done, check out the generated table and graphs to calculate your retirement
+            </p>
+            <p className='input-subtitle'>
+            *None of the information on this site is saved*
+            </p>
+          </h2>
+
+      <div className='input-flexcol'>
+        <div className='input-group'>
+          <div className='input-title general'>General</div> 
+          <label className='inputRow'>Birthdate 
+          <input type="date" value={this.state.birthDate} onChange={this.handleBDayChange}/>
+          <a data-tooltip-id='birthdate' data-tooltip-content={"Used to determine age and how long to retirement"} data-tooltip-place='right'>?</a>{/* eslint-disable-line jsx-a11y/anchor-is-valid */}
+          </label>
+          <label className='inputRow'>Current Tenure 
+          <input type="number" value={this.state.currentTenure} onChange={this.handleTenureChange}/>
+          <a data-tooltip-id='tenure' data-tooltip-content={"Used with vesting period (if applicable) to determine vesting schedule"} data-tooltip-place='right'>?</a>{/* eslint-disable-line jsx-a11y/anchor-is-valid */}
+          </label>
+          <label className='inputRow'>Current Salary <input type="number" value={this.state.currentSalary} onChange={this.handleSalaryChange}/></label>
+          <label className='inputRow'>Expected Annual Raise <input type="number" value={this.state.yearlyRaise} onChange={this.handleRaiseChange}/><span className='perc'>%</span></label>
+        </div>
+        <div className='input-group'>
+        <div className='input-title k401'>401K</div> 
+        <label className='inputRow'>Current Balance <input type="number" value={this.state.initialBalance401k} onChange={this.handle401KBalanceChange}/></label>
+        <label className='inputRow'>Personal Contribution <input type="number" value={this.state.personal401KContribution} onChange={this.handlePersonal401kContributionChange}/><span className='perc'>%</span></label>
+        <label className='inputRow'>Employer Match <input type="number" value={this.state.employer401KMatch} onChange={this.handleEmployer401kMatchChange}/><span className='perc'>%</span></label>
+        <label className='inputRow'>
+          Average Annual ROI 
+          <input type="number" value={this.state.expected401kYoY} onChange={this.handleExpected401kYoYChange}/>
+          <span className='perc'>%</span>
+          <a data-tooltip-id='roi401k' data-tooltip-content={"The average amount this account is expected to appreciate in a year (typically 6-8%)"} data-tooltip-place='right'>?</a>{/* eslint-disable-line jsx-a11y/anchor-is-valid */}
+          </label>
+        <label className='inputRow'>
+          ROI Variance 
+          <input type="number" value={this.state.variance401kYoY} onChange={this.handle401kYoYVarianceChange}/>
+          <span className='perc'>%</span>
+          <a data-tooltip-id='variance401k' data-tooltip-content={"The max percentage (±) the Annual 401k ROI might differ from the number above"} data-tooltip-place='right'>?</a>{/* eslint-disable-line jsx-a11y/anchor-is-valid */}
+          </label>
+        </div>
+        <div className='input-group'>          
+        <div className='input-title Stock'>Company Stock</div> 
+        <label className='inputRow'>Current Balance <input type="number" value={this.state.initialBalanceStock} onChange={this.handleStockBalanceChange}/></label>
+        <label className='inputRow'>Annual Allocation 
+          <input type="number" value={this.state.allocationStock} onChange={this.handleStockAllocationChange}/>
+          <span className='perc'>%</span>
+          <a data-tooltip-id='allocation' data-tooltip-content={"The expected percentage of an employee's salary a company allocates in stock annually"} data-tooltip-place='right'>?</a>{/* eslint-disable-line jsx-a11y/anchor-is-valid */}
+        </label>
+        <label className='inputRow'>Allocation Variance 
+        <input type="number" value={this.state.allocationStockVariance} onChange={this.handleStockAllocationVarianceChange}/>
+        <span className='perc'>%</span>
+        <a data-tooltip-id='allocationVariance' data-tooltip-content={"The max percentage (±) the Annual Stock Allocation might differ from the number above"} data-tooltip-place='right'>?</a>{/* eslint-disable-line jsx-a11y/anchor-is-valid */}
+        </label>
+        <label className='inputRow'>Annual ROI 
+        <input type="number" value={this.state.expectedStockYoY} onChange={this.handleExpectedStockYoYChange}/>
+        <span className='perc'>%</span>
+        <a data-tooltip-id='roiStock' data-tooltip-content={"The average amount this account is expected to appreciate in a year"} data-tooltip-place='right'>?</a>{/* eslint-disable-line jsx-a11y/anchor-is-valid */}
+        </label>
+        <label className='inputRow'>ROI Variance 
+        <input type="number" value={this.state.varianceStockYoY} onChange={this.handleStockYoYVarianceChange}/>
+        <span className='perc'>%</span>
+        <a data-tooltip-id='varianceStock' data-tooltip-content={"The max percentage (±) the Annual Stock ROI might differ from the number above"} data-tooltip-place='right'>?</a>{/* eslint-disable-line jsx-a11y/anchor-is-valid */}
+        </label>
+        <label className='inputRow'>Vesting Period 
+        <input type="number" value={this.state.vestingPeriodStock} onChange={this.handleVestingPeriodChange}/>
+        <a data-tooltip-id='vesting' data-tooltip-content={"The number of years it takes the company stock to vest"} data-tooltip-place='right'>?</a>{/* eslint-disable-line jsx-a11y/anchor-is-valid */}
+        </label>
+        </div>
+      </div>     
+
+      <ReactToolTip id='birthdate'/>
+      <ReactToolTip id='tenure'/>
+      <ReactToolTip id='roi401k'/>
+      <ReactToolTip id='variance401k'/>
+      <ReactToolTip id='allocation'/>
+      <ReactToolTip id='allocationVariance'/>
+      <ReactToolTip id='roiStock'/>
+      <ReactToolTip id='varianceStock'/>
+      <ReactToolTip id='vesting'/>
+
+      </div>
+
       <table>
+
         <thead>
           <tr>
-            <th className="headers" colSpan={5}>General</th>
-            <th className="headers" colSpan={7}>401k</th>
-            <th className="headers" colSpan={7}>ESOP</th>
-            <th className="headers" colSpan={3}>Total</th>
+            <th className="headers general" colSpan={4}>General</th>
+            <th className="headers k401" colSpan={4}>401k</th>
+            <th className="headers Stock" colSpan={7}>Stock</th>
+            <th className="headers total" colSpan={3}>Total</th>
           </tr>
+
           <tr>
             <th rowSpan={2}>Year</th>
             <th rowSpan={2}>Age</th>
             <th rowSpan={2}>Tenure</th>
-            <th rowSpan={2}>Raise</th>
-            <th rowSpan={2}>Salary</th>
-            <th colSpan={4}>Contributions</th>
+            <th rowSpan={2} className='thickBorder'>Salary</th>
+            <th rowSpan={2}>Contributions</th>
             <th colSpan={2}>YoY</th>
-            <th rowSpan={2}>Balance</th>
+            <th rowSpan={2} className='thickBorder'>Balance</th>
             <th colSpan={2}>Allocation</th>
             <th colSpan={2}>YoY</th>
             <th rowSpan={2}>Balance</th>
-            <th colSpan={2}>Vested</th>
+            <th colSpan={2} className='thickBorder'>Vested</th>
+            <th rowSpan={2}>Balance</th>
+            {/* <th rowSpan={2}>Retirement Salary</th> */}
+          </tr>
 
-            <th rowSpan={2}>Total Retirement</th>
-            <th rowSpan={2}>Retirement Salary</th>
-            {/* //<th>salary+retirement_increase</th> */}
-          </tr>
           <tr className='smolrow'>
-            <th>Personal</th>            
-            <th>Employer</th>            
-            <th colSpan={2}>Total</th>   
-            <th>% (rand)</th>
+            <th>%</th>
             <th>$</th>
             <th>%</th>
             <th>$</th>
             <th>%</th>
             <th>$</th>
             <th>%</th>
-            <th>$</th>            
+            <th className='thickBorder'>$</th>            
           </tr>
+
         </thead>
+
         <tbody>
           {tableData.map((data, index) => (
             <tr key={index}>
               <td >{data.year}</td>
               <td >{data.age}</td>
-              <td >{ index === 0 ? <input className="smallInput" type="number" value={this.state.currentTenure} onChange={this.handleTenureChange}/>: data.tenure}</td>
-              <td >{ index === 0 ? '-' : percentFormat.format(data.annualRaise) }</td>
-              <td className='thickBorder'>{ index === 0 ? <input className="largeInput" type="text" value={this.state.currentSalary} onChange={this.handleSalaryChange}/> : dollarFormat.format(data.salary)}</td>
-              <td >{ index === 0 ? '-' : percentFormat.format(data.personal401KContribution)}</td>
-              <td >{ index === 0 ? '-' : percentFormat.format(data.employerContributionPercent401k)}</td>
-              <td >{ index === 0 ? '-' : percentFormat.format(data.totalContributionPercent401k)}</td>
-              <td >{ index === 0 ? '-' : dollarFormat.format(data.contributionDollars401k)}</td>
-              <td >{ index === 0 ? '-' : percentFormat.format(data.YoY401k)}</td>
-              <td >{ index === 0 ? '-' : dollarFormat.format(data.appreciation401k)}</td>
-              <td  className='thickBorder'>{ index === 0 ? <input className="largeInput" type="text" value={this.state.initialBalance401k} onChange={this.handle401KBalanceChange}/> : dollarFormat.format(data.balance401k)}</td>
-              <td >{ index === 0 ? '-' : percentFormat.format(data.allocPercentESOP)}</td>
-              <td >{ index === 0 ? '-' : dollarFormat.format(data.allocDollarsESOP)}</td>
-              <td >{ index === 0 ? '-' : percentFormat.format(data.YoYESOP)}</td>
-              <td >{ index === 0 ? '-' : dollarFormat.format(data.appreciationESOP)}</td>
-              <td >{ index === 0 ? <input className="largeInput" type="text" value={this.state.initialBalanceESOP} onChange={this.handleESOPBalanceChange}/> : dollarFormat.format(data.balanceESOP)}</td>
-              <td >{percentFormat.format(data.vestedPercentESOP)}</td>
-              <td className='thickBorder'>{dollarFormat.format(data.vestedBalanceESOP)}</td>
+              <td >{data.tenure}</td>
+              <td className='thickBorder'>{dollarFormat.format(data.salary)}</td>
+              <td >{dollarFormat.format(data.contributionDollars401k)}</td>
+              <td >{percentFormat.format(data.YoY401k)}</td>
+              <td >{dollarFormat.format(data.appreciation401k)}</td>
+              <td  className='thickBorder'>{dollarFormat.format(data.balance401k)}</td>
+              <td >{percentFormat.format(data.allocPercentStock)}</td>
+              <td >{dollarFormat.format(data.allocDollarsStock)}</td>
+              <td >{percentFormat.format(data.YoYStock)}</td>
+              <td >{dollarFormat.format(data.appreciationStock)}</td>
+              <td >{dollarFormat.format(data.balanceStock)}</td>
+              <td >{percentFormat.format(data.vestedPercentStock)}</td>
+              <td className='thickBorder'>{dollarFormat.format(data.vestedBalanceStock)}</td>
               <td>{dollarFormat.format(data.totalRetirement)}</td>
-              <td>{dollarFormat.format(data.retirementSalary)}</td>
-              {/* <td>{data.salary_plus_retirement_increase}</td> */}
+              {/* <td>{dollarFormat.format(data.retirementSalary)}</td> */}
             </tr>
           ))} 
         </tbody>
+
       </table>
+
+
+
       <div className='chartHolder'>
       .<h2 className='chartTitle'>Total Balances</h2>
       <LineChart
@@ -266,7 +350,7 @@ class RetirementCalc extends React.Component {
         <Tooltip />
         <Legend />
         <Line type="monotone" dataKey="totalRetirement" stroke="#ff0000" strokeWidth={3} />
-        <Line type="monotone" dataKey="balanceESOP" stroke="#8884d8" />
+        <Line type="monotone" dataKey="balanceStock" stroke="#8884d8" />
         <Line type="monotone" dataKey="balance401k" stroke="#0084d8"/>
       </LineChart>
 
@@ -286,7 +370,7 @@ class RetirementCalc extends React.Component {
         <Tooltip />
         <Legend />
         <Line type="monotone" dataKey="salary" stroke="#ff0000" strokeWidth={3} />
-        <Line type="monotone" dataKey="appreciationESOP" stroke="#8884d8"/>
+        <Line type="monotone" dataKey="appreciationStock" stroke="#8884d8"/>
         <Line type="monotone" dataKey="appreciation401k" stroke="#0084d8"/>
       </LineChart>
 
@@ -302,11 +386,11 @@ class RetirementCalc extends React.Component {
       >
         <CartesianGrid stroke="#333" strokeDasharray="5 5" />
         <XAxis type="number" dataKey="tenure" stroke='#880000' domain={[0, vestingPeriod+1]} allowDataOverflow={true}/>
-        <YAxis  type="number" domain={[0, balanceYearVestedESOP]} allowDataOverflow={true} stroke='#880000'/>
+        <YAxis  type="number" domain={[0, balanceYearVestedStock]} allowDataOverflow={true} stroke='#880000'/>
         <Tooltip />
         <Legend />
-        <Line type="linear" dataKey="vestedBalanceESOP" stroke="#8884d8" strokeWidth={3} />
-        <Line type="linear" dataKey="balanceESOP" stroke="#ff0000"  />
+        <Line type="linear" dataKey="vestedBalanceStock" stroke="#8884d8" strokeWidth={3} />
+        <Line type="linear" dataKey="balanceStock" stroke="#ff0000"  />
       </LineChart>
       </div>
       </form>

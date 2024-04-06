@@ -1,17 +1,98 @@
-.rotated-text {
-    transform: rotate(45deg);
+.test{
+  display: flex;
+  justify-content: center;
+  width: 90vw;
+  margin: auto;
+  padding-block: 100px; 
+  /* border: red solid 1px; */
+
+}
+
+.input-sectionTitle{
+  max-width: 400px;
+  padding-top: 50px;
+}
+
+.input-subtitle{
+  margin-top: 20px;
+  text-align: left;
+  font-weight: normal;
+  font-size: large;
+  /* border: red solid 1px; */
+}
+
+.input-flexcol{
+  margin-inline: 50px;
+  display: flex;
+  flex-direction: column;
+  flex-wrap: wrap;
+}
+
+.input-group{
+  display: flex;
+  flex-direction: column;
+  margin-block: 10px;
+  background-color: #212121;
+  border-radius: 10px;
+  /* border: blue 1px solid; */
+}
+
+.input-title{
+  font-size: large;
+  border-top-left-radius: 10px;
+  border-top-right-radius: 10px;
+  margin-bottom: 10px;
+  font-weight: bold;
+  padding: 5px;
+}
+
+.inputRow{
+  font-size: medium;
+  font-weight: normal;
+  margin-inline: 20px;
+  margin-bottom: 10px;
+  display: flex;
+  justify-content: flex-end;
+  /* border: purple 1px solid; */
+}
+
+input{
+  background-color: rgb(63, 63, 63);
+  color: rgb(255, 255, 255);
+  text-align: center;
+  width: 100px;
+  height: 20px;
+  margin-left: 10px;
+  /* margin: 10px; */
+  /* height: 10px; */
+}
+
+a{
+  padding-left: 10px;
+}
+
+.perc{
+  width: 0;
+  transform: translateX(-50px) translateY(1px);
 }
 
 table {
-  width: 100%; 
+  /* width: 100%;  */
+
+  width: 90vw;
+  margin: auto;
   border-collapse: collapse; 
-  background-color: #202020; 
-  color: rgb(191, 191, 191);
+  background-color: #080808; 
+  color: white;
+  /* border-radius: 10px; */
 }
 
 th {
-  border: 3px solid black; 
+  /* border-inline: 5px solid #424242;  */
+  /* border-left: none;
+  border-right: none; */
   color: rgb(255, 255, 255);
+  background-color: #212121;
 }
 
 .smolrow {
@@ -24,16 +105,12 @@ th {
 }
 
 td {
-  border: 1px  solid #303030; 
+  border: 1px  solid #424242; 
   padding: 5px; 
 }
 
-th {
-  background-color: #b10000;
-}
-
 .thickBorder{
-  border-right: 5px solid #151515;
+  border-right: 2px solid #8d8d8d;
 }
 
 .chartHolder{
@@ -41,7 +118,7 @@ th {
   background-color: rgb(0, 0, 0); 
 }
 .chartTitle{
-  color: red;
+  color: gray;
   padding-top: 100px;
 }
 .chart{
@@ -49,16 +126,24 @@ th {
   margin: auto;
 }
 
-input{
-  background-color: rgb(63, 63, 63);
-  color: rgb(255, 255, 255);
-  text-align: center;
+
+
+
+
+
+
+.general{
+  background-color: rgb(128, 0, 0);
 }
 
-.smallInput{
-  width: 35px;
+.k401{
+  background-color: rgb(0, 128, 0);
 }
 
-.largeInput{
-  width: 70px;
+.Stock{
+  background-color: rgb(0, 0, 128);
+}
+
+.total{
+  background-color: #424242;
 }
