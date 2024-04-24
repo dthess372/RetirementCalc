@@ -1,0 +1,15 @@
+{
+  "files": {
+    "main.css": "/RetirementCalc/static/css/main.262d2a35.css",
+    "main.js": "/RetirementCalc/static/js/main.bece1f99.js",
+    "static/js/453.a36c59a6.chunk.js": "/RetirementCalc/static/js/453.a36c59a6.chunk.js",
+    "index.html": "/RetirementCalc/index.html",
+    "main.262d2a35.css.map": "/RetirementCalc/static/css/main.262d2a35.css.map",
+    "main.bece1f99.js.map": "/RetirementCalc/static/js/main.bece1f99.js.map",
+    "453.a36c59a6.chunk.js.map": "/RetirementCalc/static/js/453.a36c59a6.chunk.js.map"
+  },
+  "entrypoints": [
+    "static/css/main.262d2a35.css",
+    "static/js/main.bece1f99.js"
+  ]
+}
