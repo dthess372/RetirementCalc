@@ -1,13 +1,18 @@
+import React from 'react';
 import './App.css';
-
 import RetirementCalc from './RetirementCalc';
+import VacationPlanner from './VacationPlanner';
 import Footer from './Footer';
+import TopBar from './TopBar';
+
 
 function App() {
   return (
     <div className="App">
-        <RetirementCalc/>
-        <Footer/>
+      <TopBar />
+      {/* <RetirementCalc /> */}
+      <VacationPlanner/>
+      <Footer />
     </div>
   );
 }

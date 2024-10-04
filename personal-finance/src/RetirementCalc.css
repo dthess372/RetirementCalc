@@ -1,40 +1,31 @@
-.test{
+.input-section{
   display: flex;
   justify-content: center;
-  width: 90vw;
   margin: auto;
-  padding-block: 100px; 
-  /* border: red solid 1px; */
-
+  padding-top: 100px; 
+  /* border: red solid 2px; */
+  
 }
 
-.input-sectionTitle{
-  max-width: 400px;
+/* .input-sectionTitle{
+  /* max-width: 400px; 
   padding-top: 50px;
-}
+  border: blue solid 5px;
+} */
 
-.input-subtitle{
-  margin-top: 20px;
+/* .input-subtitle{
+  margin-top: 20px; 
   text-align: left;
   font-weight: normal;
   font-size: large;
-  /* border: red solid 1px; */
-}
+  border: red solid 1px;
+} */
 
-.input-flexcol{
-  margin-inline: 50px;
-  display: flex;
-  flex-direction: column;
-  flex-wrap: wrap;
-}
 
 .input-group{
-  display: flex;
-  flex-direction: column;
-  margin-block: 10px;
-  background-color: #212121;
+  margin-inline: 10px;
+  background-color: var(--black);
   border-radius: 10px;
-  /* border: blue 1px solid; */
 }
 
 .input-title{
@@ -44,6 +35,14 @@
   margin-bottom: 10px;
   font-weight: bold;
   padding: 5px;
+  background-color: var(--secondary-color);
+}
+
+.input-subcat{
+  border: 1px solid var(--gray);
+  border-radius: 10px;
+  margin: 10px;
+  padding-block: 5px;
 }
 
 .inputRow{
@@ -57,14 +56,30 @@
 }
 
 input{
-  background-color: rgb(63, 63, 63);
-  color: rgb(255, 255, 255);
+  background-color: var(--background-color);
+  color: var(--text-color);
   text-align: center;
   width: 100px;
   height: 20px;
   margin-left: 10px;
+  /* margin-right: 10px; */
   /* margin: 10px; */
   /* height: 10px; */
+}
+
+.RunTheNumbers{
+  z-index: 10;
+  color: var(--white);
+  background-color: var(--secondary-color);
+  /* margin: 50px; */
+  border-radius: 10px;
+  padding: 10px;
+  position: fixed;
+  right: 50px;
+  top: 100px;
+  width: 200px;
+  height: 50px;
+  font-size: large;
 }
 
 a{
@@ -76,74 +91,40 @@ a{
   transform: translateX(-50px) translateY(1px);
 }
 
-table {
-  /* width: 100%;  */
-
-  width: 90vw;
-  margin: auto;
-  border-collapse: collapse; 
-  background-color: #080808; 
-  color: white;
-  /* border-radius: 10px; */
-}
-
-th {
-  /* border-inline: 5px solid #424242;  */
-  /* border-left: none;
-  border-right: none; */
-  color: rgb(255, 255, 255);
-  background-color: #212121;
-}
-
 .smolrow {
   font-size: 10px;
 }
 
-.headers{
-  font-size: 32px;
-  font-weight: bold;
-}
-
-td {
-  border: 1px  solid #424242; 
-  padding: 5px; 
+.retirementTableData {
+  border: 1px  solid rgb(180, 180, 180); 
+  /* padding-block: 10px;  */
+  padding-inline: 5px;
 }
 
 .thickBorder{
-  border-right: 2px solid #8d8d8d;
+  border-right: 5px solid rgb(133, 144, 180);
 }
 
-.chartHolder{
+.dark{
+  background-color: var(--darkGray);
+}
+
+.sectionDivide{
   width: 100%;
-  background-color: rgb(0, 0, 0); 
-}
-.chartTitle{
-  color: gray;
-  padding-top: 100px;
-}
-.chart{
-  background-color: rgb(0, 0, 0); 
-  margin: auto;
+  border-bottom: var(--gray) 2px solid;
+  padding-bottom: 50px; 
 }
 
-
-
-
-
-
-
-.general{
-  background-color: rgb(128, 0, 0);
+.upArrow{
+  height: 20px;
+  width: 15px;
+  filter: brightness(1) invert(0.5) sepia(1) hue-rotate(90deg) saturate(7500%);
+  transform: translate(0px, 4px); 
 }
 
-.k401{
-  background-color: rgb(0, 128, 0);
-}
-
-.Stock{
-  background-color: rgb(0, 0, 128);
-}
-
-.total{
-  background-color: #424242;
+.downArrow{
+  height: 20px;
+  width: 15px;
+  filter: brightness(1) invert(0.5) sepia(1) hue-rotate(-60deg) saturate(7500%);
+  transform: scaleY(-1) translate(0px, -4px); 
 }

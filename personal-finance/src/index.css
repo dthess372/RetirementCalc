@@ -1,3 +1,33 @@
+:root {
+  --background-color: #222222;
+  --primary-color:    #999999;
+  --secondary-color:  #949494;    /* CC6102 */
+  --tertiary-color:   #440000;    /* F0932D */
+  --text-color:       #dddddd;
+
+  --tableBG:     #eeeeee;
+
+  --tableHeadBG: #464646;
+  --tableHeadText: #e4e4e4;
+  --tableHeadBorder: #00000044;
+
+  --tableBodyText: #000000;
+  --tableBodyBorder: #000000;
+
+  --tableDataBorder: #cccccc;
+  --tableDataHoveredBG: #dddddd;
+  --tableDataHoveredBorder: #ff0000;
+  --tableDataEditableBG: #ffffff;
+
+  --tableThickBorder: #00000044;
+
+  --white:    #ffffff;
+  --lightGray:#cccccc;
+  --gray:     #888888;
+  --darkGray: #444444;
+  --black:    #000000;
+}
+
 body {
   margin: 0;
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
@@ -10,4 +40,54 @@ body {
 code {
   font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
     monospace;
+}
+
+table {
+  margin: auto;
+  margin-top: 50px;
+  border-collapse: collapse; 
+  background-color: var(--tableBG); 
+  /* width: 50%; */
+}
+
+thead {
+  color: var(--tableHeadText);
+  background-color: var(--tableHeadBG);
+  border: 2px  solid var(--tableHeadBorder); 
+}
+
+.tableHeadSection {
+  /* border: 3px solid #880000; */
+}
+
+th {
+  padding-inline: 10px;
+
+}
+
+tbody {
+  border: 2px  solid var(--tableBodyBorder); 
+  color: var(--tableBodyText);
+}
+
+td {
+  border: 1px  solid var(--tableDataBorder); 
+  padding-inline: 10px;
+}
+
+.editable:hover {
+  background-color: var(--tableDataHoveredBG);
+  /* border: 1px solid var(--tableDataHoveredBorder); */
+}
+
+.editable {
+  background-color: var(--tableDataEditableBG);
+}
+
+.thick {
+  border-left: 2px solid var(--tableThickBorder);
+}
+
+.alignLeft{
+  text-align: right;
 }
