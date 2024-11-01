@@ -91,3 +91,8 @@ td {
 .alignLeft{
   text-align: right;
 }
+
+.flexbox {
+  display: flex;
+  flex-direction: column;
+}

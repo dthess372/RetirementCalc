@@ -1,0 +1,33 @@
+<form>
+    <label>
+    PTO Days per Year:
+    <input type="number" name="ptoDaysPerYear" value={settings.ptoDaysPerYear} onChange={handleSettingsChange} />
+    </label>
+    <label>
+    Pay Frequency (days):
+    <input type="number" name="payFrequency" value={settings.payFrequency} onChange={handleSettingsChange} />
+    </label>
+    <label>
+    Most Recent Pay Date:
+    <input type="date" name="mostRecentPayDate" value={settings.mostRecentPayDate} onChange={handleSettingsChange} />
+    </label>
+    <label>
+    PTO Accrual or Lump Sum:
+    <select name="ptoAccrual" value={settings.ptoAccrual} onChange={handleSettingsChange}>
+        <option value="accrual">Accrual</option>
+        <option value="lumpSum">Lump Sum</option>
+    </select>
+    </label>
+    <label>
+    Enable Comp Time:
+    <input type="checkbox" name="enableCompTime" checked={settings.enableCompTime} onChange={handleSettingsChange} />
+    </label>
+    {settings.enableCompTime && (
+    <>
+        <label>
+        Current Comp Balance:
+        <input type="number" name="currentCompBalance" value={settings.currentCompBalance} onChange={handleSettingsChange} />
+        </label>
+    </>
+    )}
+</form>

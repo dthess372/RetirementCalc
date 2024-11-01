@@ -9,7 +9,7 @@ import TopBar from './TopBar';
 function App() {
   return (
     <div className="App">
-      <TopBar />
+      {/* <TopBar /> */}
       {/* <RetirementCalc /> */}
       <VacationPlanner/>
       <Footer />
