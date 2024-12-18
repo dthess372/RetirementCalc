@@ -1,9 +1,14 @@
 :root {
-  --background-color: #222222;
-  --primary-color:    #999999;
-  --secondary-color:  #949494;    /* CC6102 */
-  --tertiary-color:   #440000;    /* F0932D */
-  --text-color:       #dddddd;
+  --background-color: #111111;
+  
+  --primary-color:    #796832;
+  --secondary-color:  #e63946;
+  --tertiary-color:   #000000;
+
+  --trim-color:        #333333;
+
+  --primary-text-color:    #f1faee;
+  --secondary-text-color:  #a8dadc;
 
   --tableBG:     #eeeeee;
 
@@ -35,6 +40,8 @@ body {
     sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  background-color: var(--background-color);
+  background: linear-gradient(to bottom, #333333, #080808, #000000); /* Darker grayscale gradient */
 }
 
 code {

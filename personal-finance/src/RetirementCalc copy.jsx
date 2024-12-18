@@ -1,6 +1,8 @@
 import React from 'react';
 import "./RetirementCalc.css";
-import { Tooltip as ReactToolTip } from 'react-tooltip';
+import TickerArrow from './Images/tickerArrow.png'
+import Stonks from './Images/stonks.webp'
+import { Tooltip as ReactToolTip} from 'react-tooltip';
 import { validateForm } from './formValidation';
 import DynamicChart from './DynamicChart';
 
@@ -8,99 +10,49 @@ class RetirementCalc extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
-      birthDate: '1999-01-01',
-      currentTenure: 0,
-      currentSalary: 75000,
-      yearlyRaise: 4,
-      initialBalance401k: 0,
-      personal401KContribution: 3,
-      employer401KMatch: 3,
-      initialContributionsRothIRA: 0,
-      initialEarningsRothIRA: 0,
-      RothIRAContribution: 3,
-      initialBalanceStock: 0,
-      allocationStock: 5,
-      allocationStockVariance: 2,
-      vestingPeriod: 5,
+      birthDate: '1999-01-01', currentTenure: 0, currentSalary: 75000, yearlyRaise: 4,
+      initialBalance401k: 0, personal401KContribution: 3, employer401KMatch: 3, expected401kYoY: 7, variance401kYoY: 10,
+      initialContributionsRothIRA: 0, initialEarningsRothIRA: 0, RothIRAContribution: 3, expectedRothIRAYoY: 7, varianceRothIRAYoY: 10,
+      initialBalanceStock: 0, allocationStock: 5, allocationStockVariance: 2, expectedStockYoY: 10, varianceStockYoY: 10, vestingPeriod: 5,
       numSimulations: 1000,
-      simulationResults: {
-        "401k": [],
-        RothIRA: [],
-        Stock: []
-      },
-      statistics: {
-        "401k": {},
-        RothIRA: {},
-        Stock: {}
-      },
-    };
+      simulationResults: [],
+      tableData: [],
+      balanceYearVestedStock: 0
+    }; 
 
     this.handleFormSubmit = this.handleFormSubmit.bind(this);
     this.handleChange = this.handleChange.bind(this);
   }
 
   runMonteCarloSimulations() {
-    const categories = ["401k", "RothIRA", "Stock"];
-    const results = {};
-    categories.forEach((category) => {
-      results[category] = this.runCategorySimulations(category);
-    });
-
-    const statistics = this.calculateStatistics(results);
-    this.setState({ simulationResults: results, statistics });
-  }
-
-  runCategorySimulations(category) {
     const simulations = [];
     for (let i = 0; i < this.state.numSimulations; i++) {
-      const result = this.calculateTable(category, true);
-      simulations.push(result.map((year) => year[category].balance));
+      const simulationResult = this.calculateTable(true); // Run with Monte Carlo (true flag)
+      simulations.push(simulationResult);
     }
-    return simulations;
+
+    // After all simulations, calculate the average and other statistics
+    const averagedResults = this.calculateAverages(simulations);
+    this.setState({ simulationResults: averagedResults });
   }
 
-  calculateStatistics(results) {
-    const stats = {};
-    Object.keys(results).forEach((category) => {
-      const allSimulations = results[category];
-      const yearlyStats = [];
-
-      for (let yearIndex = 0; yearIndex < allSimulations[0].length; yearIndex++) {
-        const balances = allSimulations.map((sim) => sim[yearIndex]);
-        yearlyStats.push(this.computeQuartiles(balances));
-      }
-
-      stats[category] = yearlyStats;
+  calculateAverages(simulations) {
+    const averages = simulations[0].map((_, index) => {
+      const sum = simulations.reduce((acc, simulation) => acc + simulation[index].totalRetirement, 0);
+      return sum / simulations.length; // Average retirement balance
     });
-    return stats;
+    return averages;
   }
+  
+  calculateTable(isSimulation = false) {
 
-  computeQuartiles(data) {
-    data.sort((a, b) => a - b);
-    const min = data[0];
-    const max = data[data.length - 1];
-    const median = this.calculatePercentile(data, 50);
-    const q1 = this.calculatePercentile(data, 25);
-    const q3 = this.calculatePercentile(data, 75);
-    return { min, max, median, q1, q3 };
-  }
-
-  calculatePercentile(data, percentile) {
-    const index = (percentile / 100) * (data.length - 1);
-    const lower = Math.floor(index);
-    const upper = Math.ceil(index);
-    if (lower === upper) {
-      return data[lower];
-    }
-    return data[lower] + (index - lower) * (data[upper] - data[lower]);
-  }
-
-  calculateTable(category, isSimulation = false) {
     const INFLATION_RATE = 0.02;
 
     const contributionLimit401k = 22500;
     const contributionLimitRothIRA = 7000;
     const retirementAge = 67;
+
+    const tableData = [];
 
     const birthDate = new Date(this.state.birthDate);
     const today = new Date();
@@ -110,44 +62,99 @@ class RetirementCalc extends React.Component {
     let tenure = this.state.currentTenure;
     let salary = this.state.currentSalary;
 
-    const balance = {
-      "401k": parseFloat(this.state.initialBalance401k),
-      RothIRA: parseFloat(this.state.initialContributionsRothIRA) + parseFloat(this.state.initialEarningsRothIRA),
-      Stock: parseFloat(this.state.initialBalanceStock)
-    };
+    let balance401k               = parseFloat(this.state.initialBalance401k); 
+    let totalRothIRAContributions = parseFloat(this.state.initialContributionsRothIRA);
+    let totalEarningsRothIRA      = parseFloat(this.state.initialEarningsRothIRA);
+    let balanceRothIRA            = totalRothIRAContributions + totalEarningsRothIRA;
+    let balanceStock              = parseFloat(this.state.initialBalanceStock); 
 
-    const yearlyData = [];
+    const vestingPeriod = this.state.vestingPeriod; 
+
+    const personlContr  = parseFloat(this.state.personal401KContribution)/100;
+    const employerMatch = Math.min(parseFloat(this.state.employer401KMatch)/100, personlContr);
+    const totalContributionPercent401k = (personlContr + employerMatch); 
     let year = today.getFullYear();
 
-    while (age <= retirementAge) {
-      const YoY = isSimulation
-        ? this.generateRealisticReturn(
-            this.state[`expected401kYoY`], // Fixed to hardcoded future expected conditions
-            this.state[`variance401kYoY`]
-          )
-        : 0.07; // Assumes a standard market return
+    for (; age <= retirementAge; tenure++) {
 
-      const appreciation = balance[category] * YoY;
-      balance[category] += appreciation;
+      const contributionDollars401k     = Math.min(salary * totalContributionPercent401k , contributionLimit401k);
+      const contributionDollarsRothIRA  = Math.min(salary * this.state.RothIRAContribution, contributionLimitRothIRA);
 
-      yearlyData.push({
+      const YoY401k = isSimulation
+        ? this.generateRealisticReturn(this.state.expected401kYoY, this.state.variance401kYoY)
+        : this.state.expected401kYoY / 100;
+      const YoYRothIRA = isSimulation
+        ? this.generateRealisticReturn(this.state.expectedRothIRAYoY, this.state.varianceRothIRAYoY)
+        : this.state.expectedRothIRAYoY / 100;
+      const YoYStock = isSimulation
+        ? this.generateRealisticReturn(this.state.expectedStockYoY, this.state.varianceStockYoY)
+        : this.state.expectedStockYoY / 100;
+
+      const appreciation401k    = balance401k * YoY401k;
+      const appreciationRothIRA = balanceRothIRA * YoYRothIRA;
+      const appreciationStock   = balanceStock * YoYStock;
+
+      const allocPercentStock = ( Math.random() * (this.state.allocationStockVariance*2) - (this.state.allocationStockVariance-this.state.allocationStock) ) / 100 ;
+      const allocDollarsStock = salary * (this.state.allocationStock/100);
+
+      balance401k     += contributionDollars401k + appreciation401k;
+      totalRothIRAContributions += contributionDollarsRothIRA;
+      totalEarningsRothIRA += appreciationRothIRA;
+      balanceRothIRA  += contributionDollarsRothIRA + appreciationRothIRA;
+      balanceStock    += allocDollarsStock + appreciationStock;
+
+      let vestedPercentStock;
+      if(vestingPeriod === 0){
+        vestedPercentStock = 1;
+      } else{
+        vestedPercentStock = Math.min(tenure / vestingPeriod, 1);
+      }
+      const vestedBalanceStock = vestedPercentStock * balanceStock;
+
+      const totalRetirement = balance401k + vestedBalanceStock;
+
+      tableData.push({
         year,
         age,
-        [category]: {
-          balance: balance[category],
-          appreciation
-        }
-      });
+        salary,
+        tenure,
 
+        contributionDollars401k,
+        YoY401k,
+        appreciation401k,
+        balance401k,
+
+        contributionDollarsRothIRA,
+        YoYRothIRA,
+        appreciationRothIRA,
+        totalEarningsRothIRA,
+        totalRothIRAContributions,
+        balanceRothIRA,
+
+        allocPercentStock, 
+        allocDollarsStock, 
+        YoYStock,      
+        appreciationStock, 
+        balanceStock,
+        vestedBalanceStock, 
+ 
+        totalRetirement, 
+      }); 
+ 
       year++;
       age++;
-      salary *= (1 + this.state.yearlyRaise / 100) * (1 + INFLATION_RATE);
-    }
 
-    return yearlyData;
+      salary *= (1 + this.state.yearlyRaise / 100) * (1 + INFLATION_RATE);
+
+      if(tenure === vestingPeriod+1){
+        this.state.balanceYearVestedStock = balanceStock;
+      }
+    }
+    this.setState({ tableData });
   }
 
   generateRealisticReturn(expectedReturn, variance) {
+    // Use Box-Muller transform
     const standardDeviation = variance / 2;
     const u1 = Math.random();
     const u2 = Math.random();
@@ -165,15 +172,14 @@ class RetirementCalc extends React.Component {
   handleFormSubmit(event) {
     event.preventDefault();
     if (validateForm(this.state)) {
-      this.runMonteCarloSimulations();
+      this.calculateTable();
     } else {
       console.error("Form submission failed due to validation errors");
     }
   }
-
+  
   render() {
-    // const { tableData } = this.state;
-    const { statistics } = this.state;
+    const { tableData } = this.state;
 
     const dollarFormat = new Intl.NumberFormat('en-US', {
       style: 'currency',
@@ -230,7 +236,21 @@ return(
     <label>Total Contribution: {parseFloat(this.state.personal401KContribution) + Math.min(parseFloat(this.state.employer401KMatch), parseFloat(this.state.personal401KContribution)) 
 } %</label>
     </div>
-
+    <div className='input-subcat'>
+    <label className='inputRow'>
+      Average APR 
+      <input type="number" name="expected401kYoY" value={this.state.expected401kYoY} onChange={this.handleChange}/>
+      <span className='perc'>%</span>
+      <a data-tooltip-id='APR' data-tooltip-content={"The average amount this account is expected to appreciate in a year (typically 6-8%)"} data-tooltip-place='right'>?</a>{/* eslint-disable-line jsx-a11y/anchor-is-valid */}
+      </label>
+    <label className='inputRow'>
+      Variance 
+      <input type="number" name="variance401kYoY" value={this.state.variance401kYoY} onChange={this.handleChange}/>
+      <span className='perc'>%</span>
+      <a data-tooltip-id='variance401k' data-tooltip-content={"The max percentage (±) the Annual 401k APR might differ from the number above"} data-tooltip-place='right'>?</a>{/* eslint-disable-line jsx-a11y/anchor-is-valid */}
+      </label>
+      <label>APR Range: {parseFloat(this.state.expected401kYoY)-parseFloat(this.state.variance401kYoY)} to {parseFloat(this.state.expected401kYoY)+parseFloat(this.state.variance401kYoY)} %</label>
+    </div>
     </div>
 
     <div className='input-group'>
@@ -238,7 +258,21 @@ return(
     <label className='inputRow'>Total Current Contributions<input type="number" name="initialContributionsRothIRA" value={this.state.initialContributionsRothIRA} onChange={this.handleChange}/></label>
     <label className='inputRow'>Total Current Earnings<input type="number" name="initialEarningsRothIRA" value={this.state.initialEarningsRothIRA} onChange={this.handleChange}/></label>
     <label className='inputRow'>Personal Contribution <input type="number" name="RothIRAContribution" value={this.state.RothIRAContribution} onChange={this.handleChange}/><span className='perc'>%</span></label>
-
+    <div className='input-subcat'>
+    <label className='inputRow'>
+      Average APR 
+      <input type="number" name="expectedRothIRAYoY" value={this.state.expectedRothIRAYoY} onChange={this.handleChange}/>
+      <span className='perc'>%</span>
+      <a data-tooltip-id='APR' data-tooltip-content={"The average amount this account is expected to appreciate in a year (typically 6-8%)"} data-tooltip-place='right'>?</a>{/* eslint-disable-line jsx-a11y/anchor-is-valid */}
+      </label>
+    <label className='inputRow'>
+      Variance 
+      <input type="number" name="varianceRothIRAYoY" value={this.state.varianceRothIRAYoY} onChange={this.handleChange}/>
+      <span className='perc'>%</span>
+      <a data-tooltip-id='variance' data-tooltip-content={"The max percentage (±) the APR might differ from the number above"} data-tooltip-place='right'>?</a>{/* eslint-disable-line jsx-a11y/anchor-is-valid */}
+      </label>
+      <label>APR Range: {parseFloat(this.state.expectedRothIRAYoY)-parseFloat(this.state.varianceRothIRAYoY)} to {parseFloat(this.state.expectedRothIRAYoY)+parseFloat(this.state.varianceRothIRAYoY)} %</label>
+    </div>
     </div>
 
     <div className='input-group'>          
@@ -293,44 +327,9 @@ return(
 
   </form>
 
-  <div className='sectionDivide'/>
+  <div className='sectionDivide'/> {/* BEGIN TABLE */}
 
   <table>
-          <thead>
-            <tr>
-              <th>Category</th>
-              <th>Year</th>
-              <th>Min</th>
-              <th>Q1</th>
-              <th>Median</th>
-              <th>Q3</th>
-              <th>Max</th>
-            </tr>
-          </thead>
-          <tbody>
-            {Object.keys(statistics).map((category) =>
-              statistics[category] &&
-              Object.keys(statistics[category]).map((yearIndex) => {
-                const stat = statistics[category][yearIndex];
-                return (
-                  <tr key={`${category}-${yearIndex}`}>
-                    <td>{category}</td>
-                    <td>{parseInt(yearIndex) + new Date().getFullYear()}</td>
-                    <td>{stat.min.toFixed(2)}</td>
-                    <td>{stat.q1.toFixed(2)}</td>
-                    <td>{stat.median.toFixed(2)}</td>
-                    <td>{stat.q3.toFixed(2)}</td>
-                    <td>{stat.max.toFixed(2)}</td>
-                  </tr>
-                );
-              })
-            )}
-          </tbody>
-        </table>
-
-        <div className='sectionDivide'/> 
-
-  {/* <table>
 
     <thead>
       <tr>
@@ -404,12 +403,12 @@ return(
       ))} 
     </tbody>
 
-  </table> */}
+  </table>
 
 
    <div className='sectionDivide'/> {/* BEGIN CHART */}
 
-   {/* <DynamicChart        
+   <DynamicChart        
       title="Account Balances"
       data={tableData}
       lines={[
@@ -451,7 +450,41 @@ return(
               <p style={{color: '#880000'}}>{`Company Stock Appreciation: $${Math.round(payload[2].value).toLocaleString()}`}</p> 
             </div> );
         } return null; }}
-    />  */}
+    /> 
+
+  {/* {this.state.vestingPeriod > 0 &&
+      <DynamicChart
+        data={tableData}
+        lines={accountBalanceLines}
+        title="Vesting Breakdown"
+        tooltipContent={customTooltip}
+      />
+
+  <XAxis dataKey="year" stroke='#ffffff' dy={10} domain={[0, this.state.vestingPeriod + 1]}/> 
+  <YAxis stroke='#cccccc' dx={-5} allowDecimals={false} tickFormatter={this.formatYAxisTick} domain={[0, this.state.balanceYearVestedStock]} />
+    content={({ active, payload }) => {
+      if (active && payload && payload.length) {
+        const data = payload[0].payload;
+        return (
+          <div className="custom-tooltip" style={{ backgroundColor: 'black', padding: '10px', color: 'white', borderRadius: '10px' }}>
+            <p >{`Year: ${data.year}`}</p>
+            <p>{`Age: ${data.age}`}</p>
+            <p>{`Total Stock Balance: ${payload[0].value}`}</p>
+            <p>{`Vested Stock Balance: ${payload[1].value}`}</p>
+          </div>
+        );
+      }
+      return null;
+
+  <Legend verticalAlign="top" height={36} iconType='line' />
+  <Line type="linear" dataKey="balanceStock" stroke="#ff0000" strokeWidth={3} name='Stock Balance' />
+  <Line type="linear" dataKey="vestedBalanceStock" stroke="#CC6102" strokeWidth={3} name='Vested Stock Balance' />
+  } */}
+  
+  
+  <div className='sectionDivide'/>
+
+  <img src={Stonks} alt='' style={{ margin: '50px' }} />
 
 </>);
   }
