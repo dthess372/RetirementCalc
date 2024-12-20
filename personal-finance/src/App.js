@@ -6,6 +6,8 @@ import RetirementCalc from './RetirementCalc';
 import VacationPlanner from './VacationPlanner';
 import Footer from './Footer';
 import TopBar from './TopBar';
+import BudgetCreator from './BudgetCreator';
+import NetWorthCalculator from './NetWorthCalculator';
 
 
 function App() {
@@ -17,6 +19,8 @@ function App() {
             <Route path="/" element={<HomePage />} />
             <Route path="/RetirementCalculator" element={<RetirementCalc />} />
             <Route path="/VacationPlanner" element={<VacationPlanner />} />
+            <Route path="/BudgetCreator" element={<BudgetCreator />} />
+            <Route path="/NetWorthCalculator" element={<NetWorthCalculator />} />
           </Routes>
         </main>
         <Footer />

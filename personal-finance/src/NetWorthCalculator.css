@@ -1,0 +1,127 @@
+.net-worth-calculator {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 20px;
+  }
+  
+  .title {
+    text-align: center;
+    margin-bottom: 30px;
+  }
+  
+  .controls {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 20px;
+  }
+  
+  .input,
+  .select,
+  .button {
+    padding: 8px 12px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+  }
+  
+  .button {
+    background-color: #007bff;
+    color: white;
+    border: none;
+    cursor: pointer;
+  }
+  
+  .button:hover {
+    background-color: #0056b3;
+  }
+  
+  .import-export {
+    margin-bottom: 20px;
+    display: flex;
+    gap: 10px;
+  }
+  
+  .file-input {
+    padding: 8px;
+  }
+  
+  .table-container {
+    margin-bottom: 40px;
+    overflow-x: auto;
+  }
+  
+  .accounts-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 20px;
+  }
+  
+  .accounts-table th,
+  .accounts-table td {
+    padding: 12px;
+    border: 1px solid #ddd;
+    text-align: left;
+  }
+  
+  .accounts-table th {
+    background-color: #f8f9fa;
+  }
+  
+  .category-row {
+    background-color: #f8f9fa;
+    font-weight: bold;
+  }
+  
+  .total-row {
+    background-color: #e9ecef;
+    font-weight: bold;
+  }
+  
+  .value-input {
+    width: 120px;
+    padding: 6px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+  }
+  
+  .remove-button {
+    background-color: #dc3545;
+    color: white;
+    border: none;
+    padding: 6px 12px;
+    border-radius: 4px;
+    cursor: pointer;
+  }
+  
+  .remove-button:hover {
+    background-color: #c82333;
+  }
+  
+  .charts-container {
+    display: flex;
+    flex-direction: column;
+    gap: 40px;
+  }
+  
+  .category-charts {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 20px;
+  }
+  
+  .chart {
+    text-align: center;
+  }
+  
+  .total-chart {
+    text-align: center;
+  }
+  
+  @media (max-width: 768px) {
+    .controls {
+      flex-direction: column;
+    }
+    
+    .charts-container {
+      overflow-x: auto;
+    }
+  }
