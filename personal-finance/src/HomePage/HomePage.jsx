@@ -1,5 +1,5 @@
 import React from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import './HomePage.css';
 
 // Images for the icons
@@ -11,11 +11,6 @@ import { FaPlaneDeparture, FaUmbrellaBeach  } from "react-icons/fa";
 import { BsGraphUpArrow } from "react-icons/bs";
 
 function HomePage() {
-  const navigate = useNavigate();
-
-  const handleCardClick = (path) => {
-    navigate(path);
-  };
 
   return (
     <div className="home-container">
@@ -34,13 +29,13 @@ function HomePage() {
 
       {/* <p>Select a tool to get started:</p> */}
 
-      <div className="icon-container">
-  {/* Budget Calculator */}
-  <div className="icon-card" onClick={() => handleCardClick('/BudgetCreator')}>
+      <div className="icon-container">  
+  {/* Budget Planner */}
+  <Link to="/BudgetPlanner" className="icon-card">
     <GiPayMoney className="icon" size={75} />
-    <div className="icon-text">Budget<br/>Calculator</div>
+    <div className="icon-text">Budget<br/>Planner</div>
     <div className="icon-description">Track your expenses and income to plan your budget effectively.</div>
-  </div>
+  </Link>
 
   {/* Retirement Calculator */}
   <Link to="/RetirementCalculator" className="icon-card">
@@ -50,18 +45,18 @@ function HomePage() {
   </Link>
 
   {/* Net Worth Calculator */}
-  <div className="icon-card" onClick={() => handleCardClick('/NetWorthCalculator')}>
+  <Link to="/NetWorthCalculator" className="icon-card">
     <GiCutDiamond className="icon" size={75} />
     <div className="icon-text">Net Worth<br/>Calculator</div>
     <div className="icon-description">Calculate your net worth by subtracting liabilities from assets.</div>
-  </div>
+  </Link>
 
   {/* Savings Calculator */}
-  <div className="icon-card" onClick={() => handleCardClick('/SavingsCalculator')}>
+  <Link to="/SavingsCalculator" className="icon-card">
     <TbPigMoney className="icon" size={75} />
     <div className="icon-text">Saving<br/>Planner</div>
     <div className="icon-description">Estimate how much to save to reach your financial goals.</div>
-  </div>
+  </Link>
 
   {/* Time Off Planner */}
   <Link to="/VacationPlanner" className="icon-card">

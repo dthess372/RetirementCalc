@@ -1,13 +1,13 @@
 import React from 'react';
 import { BrowserRouter as Router, Routes, Route, Link } from 'react-router-dom';
 
-import HomePage from './HomePage';
-import RetirementCalc from './RetirementCalc';
-import VacationPlanner from './VacationPlanner';
-import Footer from './Footer';
-import TopBar from './TopBar';
-import BudgetCreator from './BudgetCreator';
-import NetWorthCalculator from './NetWorthCalculator';
+import HomePage from './HomePage/HomePage';
+import RetirementCalc from './RetirementCalculator/RetirementCalc';
+import VacationPlanner from './VacationTimeTool/VacationPlanner';
+import Footer from './Footer/Footer';
+import TopBar from './TopBar/TopBar';
+import BudgetPlanner from './BudgetPlanner/BudgetPlanner';
+import NetWorthCalculator from './NetWorthCalculator/NetWorthCalculator';
 
 
 function App() {
@@ -19,7 +19,7 @@ function App() {
             <Route path="/" element={<HomePage />} />
             <Route path="/RetirementCalculator" element={<RetirementCalc />} />
             <Route path="/VacationPlanner" element={<VacationPlanner />} />
-            <Route path="/BudgetCreator" element={<BudgetCreator />} />
+            <Route path="/BudgetPlanner" element={<BudgetPlanner />} />
             <Route path="/NetWorthCalculator" element={<NetWorthCalculator />} />
           </Routes>
         </main>

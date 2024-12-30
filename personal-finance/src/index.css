@@ -1,6 +1,8 @@
 :root {
-  --background-color: #111111;
-  
+  --background: #111111;
+  --section-background: #222222;
+  --subsection-background: #333333;
+
   --primary-color:    #796832;
   --secondary-color:  #e63946;
   --tertiary-color:   #000000;
@@ -10,7 +12,7 @@
   --primary-text-color:    #f1faee;
   --secondary-text-color:  #a8dadc;
 
-  --tableBG:     #eeeeee;
+  --table-background:     #686868;
 
   --tableHeadBG: #464646;
   --tableHeadText: #e4e4e4;
@@ -47,59 +49,4 @@ body {
 code {
   font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
     monospace;
-}
-
-table {
-  margin: auto;
-  margin-top: 50px;
-  border-collapse: collapse; 
-  background-color: var(--tableBG); 
-  /* width: 50%; */
-}
-
-thead {
-  color: var(--tableHeadText);
-  background-color: var(--tableHeadBG);
-  border: 2px  solid var(--tableHeadBorder); 
-}
-
-.tableHeadSection {
-  /* border: 3px solid #880000; */
-}
-
-th {
-  padding-inline: 10px;
-
-}
-
-tbody {
-  border: 2px  solid var(--tableBodyBorder); 
-  color: var(--tableBodyText);
-}
-
-td {
-  border: 1px  solid var(--tableDataBorder); 
-  padding-inline: 10px;
-}
-
-.editable:hover {
-  background-color: var(--tableDataHoveredBG);
-  /* border: 1px solid var(--tableDataHoveredBorder); */
-}
-
-.editable {
-  background-color: var(--tableDataEditableBG);
-}
-
-.thick {
-  border-left: 2px solid var(--tableThickBorder);
-}
-
-.alignLeft{
-  text-align: right;
-}
-
-.flexbox {
-  display: flex;
-  flex-direction: column;
 }
