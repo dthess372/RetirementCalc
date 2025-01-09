@@ -1,0 +1,13 @@
+{
+  "files": {
+    "main.css": "/RetirementCalc/static/css/main.a28c627f.css",
+    "main.js": "/RetirementCalc/static/js/main.7122e726.js",
+    "index.html": "/RetirementCalc/index.html",
+    "main.a28c627f.css.map": "/RetirementCalc/static/css/main.a28c627f.css.map",
+    "main.7122e726.js.map": "/RetirementCalc/static/js/main.7122e726.js.map"
+  },
+  "entrypoints": [
+    "static/css/main.a28c627f.css",
+    "static/js/main.7122e726.js"
+  ]
+}
