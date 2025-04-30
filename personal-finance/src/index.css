@@ -1,7 +1,7 @@
 :root {
-  --background: #111111;
-  --section-background: #222222;
-  --subsection-background: #333333;
+  --background: #181818;
+  --secondary-background: #282828;
+  --tertiary-background: #333333;
 
   --primary-color:    #796832;
   --secondary-color:  #e63946;
@@ -42,11 +42,148 @@ body {
     sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  background-color: var(--background-color);
-  background: linear-gradient(to bottom, #333333, #080808, #000000); /* Darker grayscale gradient */
+  /* background: linear-gradient(to bottom, black, #2e250b, #3b3622); Darker grayscale gradient */
+  background-color: #080808;
+  background-attachment: fixed; /* Prevents background movement on scroll */
 }
 
 code {
   font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
     monospace;
+}
+
+/* Common Layout */
+.calculator-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 20px;
+  color: var(--text-color);
+}
+
+section {
+  background: var(--background);
+  border-radius: 10px;
+  box-shadow: 0 0px 5px rgba(0, 0, 0, 1);
+  margin-bottom: 20px;
+  padding: 20px;
+}
+
+/* Typography */
+h1 {
+  font-size: 2.5em;
+  color: var(--text-color);
+  text-align: center;
+  margin-bottom: 30px;
+}
+
+h2 {
+  font-size: 2em;
+  color: var(--primary-color);
+  margin: 0 0 20px 0;
+}
+
+/* Common Flexbox Layout */
+.flexbox {
+  display: flex;
+  flex-direction: row;
+  padding-bottom: 20px;
+  gap: 20px;
+}
+
+/* Common Input Section */
+.input-section {
+  background: var(--secondary-background);
+  border-radius: 10px;
+  min-width: 182px;
+  padding: 20px;
+  flex-direction: column;
+  margin: 0px;
+  margin-right: 20px;
+}
+
+/* Common Table Styles */
+table {
+  border-collapse: collapse;
+  border: 1px solid #444;
+  color: var(--text-color);
+  width: 100%;
+}
+
+th {
+  padding: 12px;
+  background-color: var(--secondary-background);
+  border-bottom: 1px solid #444;
+  text-align: left;
+}
+
+td {
+  padding-left: 10px;
+  border-bottom: 1px solid #444;
+  /* border: red 1px solid; */
+  height: 40px;
+  /* text-align: center; */
+}
+
+.centeredCol{
+  text-align: center;
+}
+
+.rightCol{
+  text-align: right;
+}
+
+/* Common Input Styles */
+input[type="number"] {
+  width: 100px;
+  padding-inline: 5px;
+  padding-block: 5px;
+  margin: 0;
+  border: 1px solid #444;
+  border-radius: 5px;
+  text-align: center;
+  color: var(--text-color);
+  background-color: black;
+}
+
+input[type="number"]:hover {
+  border: solid 1px var(--primary-color);
+}
+
+/* Common Button Styles */
+.primary-button {
+  background-color: #0066cc;
+  color: white;
+  padding: 8px 16px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.primary-button:hover {
+  background-color: #0052a3;
+}
+
+.actions-section {
+  display: flex;
+  gap: 10px;
+  margin-top: 20px;
+  margin-bottom: 50px;
+}
+
+/* Common Media Queries */
+@media (max-width: 1024px) {
+  .flexbox {
+    flex-direction: column;
+  }
+  
+  .input-section {
+    margin-right: 0;
+    margin-bottom: 20px;
+  }
+  
+  table {
+    display: block;
+    overflow-x: auto;
+  }
 }

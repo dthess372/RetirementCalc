@@ -1,13 +1,16 @@
 import React from 'react';
-import { BrowserRouter as Router, Routes, Route, Link } from 'react-router-dom';
+// import { BrowserRouter as Router, Routes, Route, Link } from 'react-router-dom';
+import { HashRouter as Router, Routes, Route, Link } from 'react-router-dom';
 
-import HomePage from './HomePage/HomePage';
-import RetirementCalc from './RetirementCalculator/RetirementCalc';
-import VacationPlanner from './VacationTimeTool/VacationPlanner';
-import Footer from './Footer/Footer';
-import TopBar from './TopBar/TopBar';
-import BudgetPlanner from './BudgetPlanner/BudgetPlanner';
-import NetWorthCalculator from './NetWorthCalculator/NetWorthCalculator';
+import HomePage from './components/HomePage/HomePage';
+import RetirementCalc from './components/RetirementCalculator/RetirementCalc';
+import VacationPlanner from './components/VacationTimeTool/VacationPlanner';
+import Footer from './components/Footer/Footer';
+import TopBar from './components/TopBar/TopBar';
+import BudgetPlanner from './components/BudgetPlanner/BudgetPlanner';
+import NetWorthCalculator from './components/NetWorthCalculator/NetWorthCalculator';
+import SavingPlanner from './components/SavingPlanner/SavingPlanner';
+import MortgageTool from './components/MortgageTool/MortgageTool';
 
 
 function App() {
@@ -21,6 +24,8 @@ function App() {
             <Route path="/VacationPlanner" element={<VacationPlanner />} />
             <Route path="/BudgetPlanner" element={<BudgetPlanner />} />
             <Route path="/NetWorthCalculator" element={<NetWorthCalculator />} />
+            <Route path="/SavingPlanner" element={<SavingPlanner/>} />
+            <Route path="/MortgageTool" element={<MortgageTool/>} />
           </Routes>
         </main>
         <Footer />

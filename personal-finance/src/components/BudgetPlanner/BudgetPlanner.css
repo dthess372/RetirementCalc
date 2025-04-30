@@ -1,0 +1,91 @@
+.budget-creator {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 100px;
+  color: white;
+}
+
+.budget-creator .pie {
+  margin: auto;
+}
+
+.budget-creator .category-row {
+  background-color: var(--secondary-background);
+  letter-spacing: 0.05em;
+  font-weight: 1000;
+}
+
+
+.budget-creator .add-cat { color: #28a745; }
+.budget-creator .remove-cat { color: #a72828; }
+
+.firstCol{
+  width: 33%;
+  text-align: left;
+}
+
+.expense-head{
+  color: var(--primary-color);
+}
+
+.collapse-btn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: white;
+  font-weight: bold;
+  width: 100%;
+  padding: 0;
+}
+
+.subcategory-name {
+  padding-left: 28px;
+}
+
+.trashIcon{
+  color: lightcoral;
+  margin-right: 15px;
+  align-self: right;
+  opacity: 50%;
+}
+
+.trashIcon:hover{
+  color: red;
+
+}
+.pencilIcon{
+  color: lightskyblue;
+  opacity: 50%;
+  margin-left: 15px;
+}
+.pencilIcon:hover{
+  color: blue;
+}
+.plusIcon{
+  color: lightgreen;
+}
+
+.plusIcon:hover{
+  color: green;
+}
+
+.status-icon {
+  /* display: flex; */
+  /* background-color: var(--secondary-background); */
+  /* padding: 5px; */
+}
+
+.status-icon.under {
+  color: #22c55e;  /* Green for check mark when under budget */
+}
+
+.status-icon.over {
+  color: #ef4444;  /* Red for alert triangle when over budget */
+}
+
+.status-icon.zero {
+  color: #6b7280;  /* Gray for X when amount is zero */
+}

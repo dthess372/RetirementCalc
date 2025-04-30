@@ -1,0 +1,29 @@
+.mortgage-calculator .monthly-payment {
+  background-color: rgba(40, 167, 69, 0.1);
+  border-radius: 8px;
+  padding: 20px;
+  text-align: center;
+  color: #28a745;
+  font-size: 24px;
+  font-weight: bold;
+  margin: 20px 0;
+}
+
+.mortgage-calculator .csv-controls {
+  display: flex;
+  gap: 10px;
+  margin: 20px 0;
+}
+
+.mortgage-calculator .csv-controls button {
+  background-color: #28a745;
+  color: white;
+  padding: 8px 16px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.mortgage-calculator .interest-chart {
+  margin-top: 40px;
+}

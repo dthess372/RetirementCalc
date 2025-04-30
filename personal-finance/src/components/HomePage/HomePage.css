@@ -29,6 +29,12 @@
 
 }
 
+.prompt{
+  margin-top: 50px;
+  font-size: 1.5em;
+  color: rgba(155, 155, 155, 0.5);
+}
+
 .home-title{
     margin-top: 25px;
     display: flex;
@@ -83,7 +89,7 @@
     flex-wrap: nowrap; /* Prevent wrapping */
     width: 75vw;
     margin: auto;
-    margin-top: 100px;
+    margin-top: 50px;
     /* border: red solid 1px; */
   }
   
@@ -92,16 +98,26 @@
     display: flex;
     flex-direction: column;
     align-items: center;
-    text-align: center;
+    /* text-align: center; */
     transition: transform 0.3s;
     text-decoration: none; /* Remove underline */
+
     /* border: red solid 1px; */
-    /* width: 200px; */
+    width: 135px;
   }
   
   .icon-card .icon {
     transition: transform 0.3s;
     color: var(--primary-color);
+    /* width: 100px; */
+  }
+
+  .icon-divider{
+    width: 5px;
+    height: 80px;
+    transform: translate(0px, 20px);
+    /* border: white solid 1px; */
+    background-color: rgba(155, 155, 155, 0.25);
   }
   
   .icon-card:hover .icon {

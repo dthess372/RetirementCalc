@@ -1,0 +1,24 @@
+.net-worth-calculator .controls {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 20px;
+}
+
+.net-worth-calculator .total-row {
+  background-color: var(--secondary-background);
+  font-weight: bold;
+}
+
+.net-worth-calculator .chart-section {
+  text-align: center;
+}
+
+.net-worth-calculator .hidden-input {
+  display: none;
+}
+
+@media (max-width: 768px) {
+  .net-worth-calculator .controls {
+    flex-direction: column;
+  }
+}
