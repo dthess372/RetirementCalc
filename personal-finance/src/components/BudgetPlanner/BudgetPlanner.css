@@ -56,14 +56,17 @@
   color: red;
 
 }
+
 .pencilIcon{
   color: lightskyblue;
   opacity: 50%;
   margin-left: 15px;
 }
+
 .pencilIcon:hover{
   color: blue;
 }
+
 .plusIcon{
   color: lightgreen;
 }
