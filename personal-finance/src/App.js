@@ -1,12 +1,9 @@
-import React from 'react';
-// import { BrowserRouter as Router, Routes, Route, Link } from 'react-router-dom';
-import { HashRouter as Router, Routes, Route, Link } from 'react-router-dom';
+import { HashRouter as Router, Routes, Route } from 'react-router-dom';
 
 import HomePage from './components/HomePage/HomePage';
 import RetirementCalc from './components/RetirementCalculator/RetirementCalc';
 import VacationPlanner from './components/VacationTimeTool/VacationPlanner';
 import Footer from './components/Footer/Footer';
-import TopBar from './components/TopBar/TopBar';
 import BudgetPlanner from './components/BudgetPlanner/BudgetPlanner';
 import NetWorthCalculator from './components/NetWorthCalculator/NetWorthCalculator';
 import SavingPlanner from './components/SavingPlanner/SavingPlanner';

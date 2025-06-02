@@ -4,6 +4,7 @@
   "version": "0.1.0",
   "private": true,
   "dependencies": {
+    "@emailjs/browser": "^4.4.1",
     "@emotion/react": "^11.14.0",
     "@emotion/styled": "^11.14.0",
     "@mui/material": "^6.3.0",
@@ -16,6 +17,7 @@
     "@testing-library/user-event": "^13.5.0",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
+    "emailjs": "^4.0.3",
     "firebase": "^10.11.0",
     "lucide-react": "^0.468.0",
     "rc-slider": "^10.6.2",
