@@ -8,7 +8,7 @@ import BudgetPlanner from './components/BudgetPlanner/BudgetPlanner';
 import NetWorthCalculator from './components/NetWorthCalculator/NetWorthCalculator';
 import SavingPlanner from './components/SavingPlanner/SavingPlanner';
 import MortgageTool from './components/MortgageTool/MortgageTool';
-
+import InsuranceAnalyzer from './components/InsuranceAnalyzer/InsuranceAnalyzer';
 
 function App() {
   return (
@@ -23,6 +23,7 @@ function App() {
             <Route path="/NetWorthCalculator" element={<NetWorthCalculator />} />
             <Route path="/SavingPlanner" element={<SavingPlanner/>} />
             <Route path="/MortgageTool" element={<MortgageTool/>} />
+            <Route path="/InsuranceAnalyzer" element={<InsuranceAnalyzer />} />
           </Routes>
         </main>
         <Footer />

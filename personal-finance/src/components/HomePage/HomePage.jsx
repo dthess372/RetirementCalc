@@ -56,6 +56,14 @@ function HomePage() {
       subtitle: "Calculator", 
       description: "Analyze mortgage payments and amortization schedules",
       colorClass: "cyan"
+    },
+    {
+      path: "/InsuranceAnalyzer",
+      icon: FaUmbrellaBeach,
+      name: "Insurance",
+      subtitle: "Analyzer",
+      description: "Estimate insurance needs for life, health, and property",
+      colorClass: "teal"
     }
   ];
 
