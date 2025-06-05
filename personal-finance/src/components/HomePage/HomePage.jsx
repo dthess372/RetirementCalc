@@ -65,14 +65,16 @@ function HomePage() {
 
       {/* Hero Section */}
       <div className="hero-section">
-        {/* Logo */}
-        <div className="home-logo">
-          <div className="logo-grid">
-            <div className="logo-box" />
-            <div className="logo-box" />
-            <div className="logo-box" />
-            <div className="logo-box" />
-          </div>
+       
+        {/* Loader Animation */}
+        <div class="loader">
+          <div class="loader-square"></div>
+          <div class="loader-square"></div>
+          <div class="loader-square"></div>
+          <div class="loader-square"></div>
+          <div class="loader-square"></div>
+          <div class="loader-square"></div>
+          <div class="loader-square"></div>
         </div>
 
         {/* Title */}
@@ -88,8 +90,9 @@ function HomePage() {
         <p className="hero-description">
           Take control of your financial future with our comprehensive suite of calculators and planning tools
         </p>
+        
       </div>
-
+      
       {/* Tools Grid */}
       <div className="tools-section">
         <div className="tools-grid">

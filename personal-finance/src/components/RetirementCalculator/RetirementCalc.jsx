@@ -11,39 +11,128 @@ import {
   Briefcase,
   BarChart3,
   Calculator,
-  Info
+  Info,
+  Plus,
+  X,
+  ChevronDown,
+  ChevronUp,
+  Landmark,
+  Heart,
+  Building
 } from 'lucide-react';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 import { Tooltip as ReactToolTip } from 'react-tooltip';
 import "./RetirementCalc.css";
 
+// Account type configurations
+const ACCOUNT_TYPES = {
+  '401k': {
+    name: 'Traditional 401(k)',
+    icon: Shield,
+    color: '#10b981',
+    fields: {
+      currentBalance: { label: 'Current Balance', type: 'currency', required: true },
+      employeeContribution: { label: 'Your Annual Contribution', type: 'currency', required: true },
+      employeeContributionPercent: { label: 'Or as % of Salary', type: 'percent', alternateFor: 'employeeContribution' },
+      employerMatch: { label: 'Employer Match %', type: 'percent', tooltip: '% of salary your employer matches' },
+      expectedReturn: { label: 'Expected Annual Return', type: 'percent', default: 7 }
+    }
+  },
+  'roth401k': {
+    name: 'Roth 401(k)',
+    icon: Shield,
+    color: '#8b5cf6',
+    fields: {
+      currentBalance: { label: 'Current Balance', type: 'currency', required: true },
+      employeeContribution: { label: 'Your Annual Contribution', type: 'currency', required: true },
+      employeeContributionPercent: { label: 'Or as % of Salary', type: 'percent', alternateFor: 'employeeContribution' },
+      employerMatch: { label: 'Employer Match %', type: 'percent', tooltip: '% of salary your employer matches' },
+      expectedReturn: { label: 'Expected Annual Return', type: 'percent', default: 7 }
+    }
+  },
+  'ira': {
+    name: 'Traditional IRA',
+    icon: Landmark,
+    color: '#f59e0b',
+    fields: {
+      currentBalance: { label: 'Current Balance', type: 'currency', required: true },
+      annualContribution: { label: 'Annual Contribution', type: 'currency', required: true },
+      expectedReturn: { label: 'Expected Annual Return', type: 'percent', default: 7 }
+    }
+  },
+  'rothIra': {
+    name: 'Roth IRA',
+    icon: Landmark,
+    color: '#ec4899',
+    fields: {
+      currentBalance: { label: 'Current Balance', type: 'currency', required: true },
+      annualContribution: { label: 'Annual Contribution', type: 'currency', required: true },
+      expectedReturn: { label: 'Expected Annual Return', type: 'percent', default: 7 }
+    }
+  },
+  'companyStock': {
+    name: 'Company Stock/RSUs',
+    icon: TrendingUp,
+    color: '#ef4444',
+    fields: {
+      currentBalance: { label: 'Current Value', type: 'currency', required: true },
+      annualGrant: { label: 'Annual Grant Value', type: 'currency', tooltip: 'Value of stock grants per year' },
+      vestingPeriod: { label: 'Vesting Period (Years)', type: 'number', default: 4 },
+      expectedReturn: { label: 'Expected Annual Return', type: 'percent', default: 10 }
+    }
+  },
+  'brokerage': {
+    name: 'Brokerage Account',
+    icon: BarChart3,
+    color: '#06b6d4',
+    fields: {
+      currentBalance: { label: 'Current Balance', type: 'currency', required: true },
+      annualContribution: { label: 'Annual Contribution', type: 'currency' },
+      expectedReturn: { label: 'Expected Annual Return', type: 'percent', default: 8 }
+    }
+  },
+  'hsa': {
+    name: 'HSA (Health Savings)',
+    icon: Heart,
+    color: '#22c55e',
+    fields: {
+      currentBalance: { label: 'Current Balance', type: 'currency', required: true },
+      annualContribution: { label: 'Annual Contribution', type: 'currency' },
+      employerContribution: { label: 'Employer Contribution', type: 'currency' },
+      expectedReturn: { label: 'Expected Annual Return', type: 'percent', default: 6 }
+    }
+  },
+  '403b': {
+    name: '403(b)',
+    icon: Building,
+    color: '#3b82f6',
+    fields: {
+      currentBalance: { label: 'Current Balance', type: 'currency', required: true },
+      employeeContribution: { label: 'Your Annual Contribution', type: 'currency', required: true },
+      employerMatch: { label: 'Employer Match %', type: 'percent' },
+      expectedReturn: { label: 'Expected Annual Return', type: 'percent', default: 7 }
+    }
+  }
+};
+
 const RetirementCalc = () => {
-  const [formData, setFormData] = useState({
+  const [generalInfo, setGeneralInfo] = useState({
     birthDate: '1990-01-01',
-    currentTenure: 5,
     currentSalary: 75000,
-    yearlyRaise: 3,
-    initialBalance401k: 25000,
-    personal401KContribution: 6,
-    employer401KMatch: 3,
-    initialContributionsRothIRA: 10000,
-    initialEarningsRothIRA: 2000,
-    RothIRAContribution: 3,
-    initialBalanceStock: 15000,
-    allocationStock: 5,
-    allocationStockVariance: 2,
-    expectedStockYoY: 10,
-    varianceStockYoY: 15,
-    vestingPeriod: 4,
+    annualRaise: 3,
+    retirementAge: 67
   });
 
+  const [accounts, setAccounts] = useState([]);
+  const [showAddAccount, setShowAddAccount] = useState(false);
+  const [collapsedAccounts, setCollapsedAccounts] = useState({});
   const [simulationResults, setSimulationResults] = useState(null);
   const [isCalculating, setIsCalculating] = useState(false);
   const [hasCalculated, setHasCalculated] = useState(false);
 
   // Calculate basic metrics
   const calculateAge = () => {
-    const birthDate = new Date(formData.birthDate);
+    const birthDate = new Date(generalInfo.birthDate);
     const today = new Date();
     let age = today.getFullYear() - birthDate.getFullYear();
     const m = today.getMonth() - birthDate.getMonth();
@@ -54,37 +143,51 @@ const RetirementCalc = () => {
   };
 
   const currentAge = calculateAge();
-  const retirementAge = 67;
-  const yearsToRetirement = Math.max(0, retirementAge - currentAge);
-  const total401kContribution = parseFloat(formData.personal401KContribution) + 
-    Math.min(parseFloat(formData.personal401KContribution), parseFloat(formData.employer401KMatch));
+  const yearsToRetirement = Math.max(0, generalInfo.retirementAge - currentAge);
 
-  // Calculate projected retirement balance (simple estimate for dashboard)
+  // Calculate projected retirement balance
   const calculateProjectedBalance = () => {
     if (!hasCalculated || !simulationResults) {
       // Simple projection without Monte Carlo
       const years = yearsToRetirement;
-      const avgReturn = 0.07;
+      let totalBalance = 0;
       
-      let balance401k = parseFloat(formData.initialBalance401k) || 0;
-      let balanceRothIRA = (parseFloat(formData.initialContributionsRothIRA) || 0) + 
-                          (parseFloat(formData.initialEarningsRothIRA) || 0);
-      let balanceStock = parseFloat(formData.initialBalanceStock) || 0;
-      let salary = parseFloat(formData.currentSalary) || 0;
-      
-      for (let i = 0; i < years; i++) {
-        const contribution401k = salary * (total401kContribution / 100);
-        const contributionRothIRA = Math.min(salary * (parseFloat(formData.RothIRAContribution) / 100), 7000);
-        const contributionStock = salary * (parseFloat(formData.allocationStock) / 100);
+      accounts.forEach(account => {
+        const accountType = ACCOUNT_TYPES[account.type];
+        const currentBalance = parseFloat(account.values.currentBalance) || 0;
+        const expectedReturn = (parseFloat(account.values.expectedReturn) || 7) / 100;
+        let annualContribution = 0;
         
-        balance401k = (balance401k + contribution401k) * (1 + avgReturn);
-        balanceRothIRA = (balanceRothIRA + contributionRothIRA) * (1 + avgReturn);
-        balanceStock = (balanceStock + contributionStock) * (1 + avgReturn * 1.2);
+        // Calculate annual contribution based on account type
+        if (account.values.employeeContribution) {
+          annualContribution = parseFloat(account.values.employeeContribution) || 0;
+        } else if (account.values.employeeContributionPercent && generalInfo.currentSalary) {
+          annualContribution = generalInfo.currentSalary * (parseFloat(account.values.employeeContributionPercent) / 100);
+        } else if (account.values.annualContribution) {
+          annualContribution = parseFloat(account.values.annualContribution) || 0;
+        } else if (account.values.annualGrant) {
+          annualContribution = parseFloat(account.values.annualGrant) || 0;
+        }
         
-        salary *= (1 + parseFloat(formData.yearlyRaise) / 100);
-      }
+        // Add employer contributions
+        if (account.values.employerMatch && generalInfo.currentSalary) {
+          const employerMatch = generalInfo.currentSalary * (parseFloat(account.values.employerMatch) / 100);
+          annualContribution += employerMatch;
+        }
+        if (account.values.employerContribution) {
+          annualContribution += parseFloat(account.values.employerContribution) || 0;
+        }
+        
+        // Project balance
+        let balance = currentBalance;
+        for (let i = 0; i < years; i++) {
+          balance = (balance + annualContribution) * (1 + expectedReturn);
+        }
+        
+        totalBalance += balance;
+      });
       
-      return balance401k + balanceRothIRA + balanceStock;
+      return totalBalance;
     }
     
     // Use Monte Carlo results if available
@@ -95,11 +198,64 @@ const RetirementCalc = () => {
   const projectedBalance = calculateProjectedBalance();
   const monthlyRetirementIncome = projectedBalance * 0.04 / 12; // 4% withdrawal rate
 
-  // Handle input changes
-  const handleInputChange = (field, value) => {
-    setFormData(prev => ({
+  // Handle general info changes
+  const handleGeneralInfoChange = (field, value) => {
+    setGeneralInfo(prev => ({
       ...prev,
       [field]: value
+    }));
+  };
+
+  // Add new account
+  const addAccount = (type) => {
+    const newAccount = {
+      id: Date.now(),
+      type,
+      name: `${ACCOUNT_TYPES[type].name} ${accounts.filter(a => a.type === type).length + 1}`,
+      values: {}
+    };
+    
+    // Set default values
+    Object.entries(ACCOUNT_TYPES[type].fields).forEach(([fieldKey, field]) => {
+      if (field.default !== undefined) {
+        newAccount.values[fieldKey] = field.default;
+      }
+    });
+    
+    setAccounts([...accounts, newAccount]);
+    setShowAddAccount(false);
+  };
+
+  // Remove account
+  const removeAccount = (accountId) => {
+    if (window.confirm('Are you sure you want to remove this account?')) {
+      setAccounts(accounts.filter(a => a.id !== accountId));
+    }
+  };
+
+  // Update account value
+  const updateAccountValue = (accountId, field, value) => {
+    setAccounts(accounts.map(account => 
+      account.id === accountId 
+        ? { ...account, values: { ...account.values, [field]: value } }
+        : account
+    ));
+  };
+
+  // Update account name
+  const updateAccountName = (accountId, name) => {
+    setAccounts(accounts.map(account => 
+      account.id === accountId 
+        ? { ...account, name }
+        : account
+    ));
+  };
+
+  // Toggle account collapse
+  const toggleAccountCollapse = (accountId) => {
+    setCollapsedAccounts(prev => ({
+      ...prev,
+      [accountId]: !prev[accountId]
     }));
   };
 
@@ -115,6 +271,12 @@ const RetirementCalc = () => {
   // Run Monte Carlo simulation
   const runSimulation = async (e) => {
     e.preventDefault();
+    
+    if (accounts.length === 0) {
+      alert('Please add at least one retirement account before running the simulation.');
+      return;
+    }
+    
     setIsCalculating(true);
     
     // Simulate calculation delay
@@ -123,68 +285,51 @@ const RetirementCalc = () => {
     // Generate mock results for demonstration
     const years = yearsToRetirement;
     const mockStatistics = {
-      '401k': [],
-      'RothIRA': [],
-      'Stock': [],
-      'total': []
+      total: [],
+      byAccount: {}
     };
     
-    let balance401k = parseFloat(formData.initialBalance401k) || 0;
-    let balanceRothIRA = (parseFloat(formData.initialContributionsRothIRA) || 0) + 
-                        (parseFloat(formData.initialEarningsRothIRA) || 0);
-    let balanceStock = parseFloat(formData.initialBalanceStock) || 0;
+    // Initialize statistics for each account
+    accounts.forEach(account => {
+      mockStatistics.byAccount[account.id] = [];
+    });
     
+    // Generate year-by-year projections
     for (let year = 0; year < years; year++) {
-      const variance = 0.15;
-      const baseReturn = 0.07;
+      let totalMin = 0, totalQ1 = 0, totalMedian = 0, totalQ3 = 0, totalMax = 0;
       
-      // Simulate ranges with some variance
-      const returns = {
-        min: baseReturn - variance,
-        q1: baseReturn - variance/2,
-        median: baseReturn,
-        q3: baseReturn + variance/2,
-        max: baseReturn + variance
-      };
-      
-      balance401k *= (1 + returns.median);
-      balanceRothIRA *= (1 + returns.median);
-      balanceStock *= (1 + returns.median * 1.2);
-      
-      mockStatistics['401k'].push({
-        year: new Date().getFullYear() + year,
-        min: balance401k * 0.6,
-        q1: balance401k * 0.8,
-        median: balance401k,
-        q3: balance401k * 1.2,
-        max: balance401k * 1.4
+      accounts.forEach(account => {
+        const currentBalance = parseFloat(account.values.currentBalance) || 0;
+        const expectedReturn = (parseFloat(account.values.expectedReturn) || 7) / 100;
+        const variance = 0.15;
+        
+        // Simple projection with variance
+        const baseValue = currentBalance * Math.pow(1 + expectedReturn, year + 1);
+        const stats = {
+          year: new Date().getFullYear() + year,
+          min: baseValue * 0.6,
+          q1: baseValue * 0.8,
+          median: baseValue,
+          q3: baseValue * 1.2,
+          max: baseValue * 1.4
+        };
+        
+        mockStatistics.byAccount[account.id].push(stats);
+        
+        totalMin += stats.min;
+        totalQ1 += stats.q1;
+        totalMedian += stats.median;
+        totalQ3 += stats.q3;
+        totalMax += stats.max;
       });
       
-      mockStatistics['RothIRA'].push({
+      mockStatistics.total.push({
         year: new Date().getFullYear() + year,
-        min: balanceRothIRA * 0.6,
-        q1: balanceRothIRA * 0.8,
-        median: balanceRothIRA,
-        q3: balanceRothIRA * 1.2,
-        max: balanceRothIRA * 1.4
-      });
-      
-      mockStatistics['Stock'].push({
-        year: new Date().getFullYear() + year,
-        min: balanceStock * 0.5,
-        q1: balanceStock * 0.75,
-        median: balanceStock,
-        q3: balanceStock * 1.3,
-        max: balanceStock * 1.6
-      });
-      
-      mockStatistics['total'].push({
-        year: new Date().getFullYear() + year,
-        min: (balance401k + balanceRothIRA + balanceStock) * 0.6,
-        q1: (balance401k + balanceRothIRA + balanceStock) * 0.8,
-        median: balance401k + balanceRothIRA + balanceStock,
-        q3: (balance401k + balanceRothIRA + balanceStock) * 1.2,
-        max: (balance401k + balanceRothIRA + balanceStock) * 1.4
+        min: totalMin,
+        q1: totalQ1,
+        median: totalMedian,
+        q3: totalQ3,
+        max: totalMax
       });
     }
     
@@ -208,43 +353,70 @@ const RetirementCalc = () => {
     }));
   };
 
+  // Calculate total contributions per year
+  const calculateTotalAnnualContributions = () => {
+    let total = 0;
+    
+    accounts.forEach(account => {
+      if (account.values.employeeContribution) {
+        total += parseFloat(account.values.employeeContribution) || 0;
+      } else if (account.values.employeeContributionPercent && generalInfo.currentSalary) {
+        total += generalInfo.currentSalary * (parseFloat(account.values.employeeContributionPercent) / 100);
+      } else if (account.values.annualContribution) {
+        total += parseFloat(account.values.annualContribution) || 0;
+      }
+      
+      // Add employer contributions
+      if (account.values.employerMatch && generalInfo.currentSalary) {
+        total += generalInfo.currentSalary * (parseFloat(account.values.employerMatch) / 100);
+      }
+      if (account.values.employerContribution) {
+        total += parseFloat(account.values.employerContribution) || 0;
+      }
+    });
+    
+    return total;
+  };
+
+  const totalAnnualContributions = calculateTotalAnnualContributions();
+
   return (
     <div className="retirement-calculator">
       {/* Header */}
       <div className="retirement-header">
         <div className="retirement-header-content">
           <h1 className="retirement-title">Retirement Planner Pro</h1>
-          <p className="retirement-subtitle">Monte Carlo simulation for confident retirement planning</p>
+          <p className="retirement-subtitle">Personalized retirement projections with Monte Carlo simulation</p>
         </div>
       </div>
 
       {/* Intro Section */}
       <div className="retirement-intro-section">
-        <h2 className="intro-title">Plan Your Financial Future with Confidence</h2>
+        <h2 className="intro-title">Build Your Custom Retirement Portfolio</h2>
         <p>
-          Use advanced Monte Carlo simulations to project your retirement savings across multiple scenarios.
-          Get a realistic range of outcomes based on market volatility and your personal situation.
+          Add only the accounts you actually have. Get personalized projections based on your unique portfolio mix.
+          Our Monte Carlo simulation runs thousands of scenarios to show you a realistic range of outcomes.
         </p>
         <div className="intro-steps">
           <div className="step">
             <span className="step-number">1</span>
-            <span>Enter your current financial situation</span>
+            <span>Enter your basic information</span>
           </div>
           <div className="step">
             <span className="step-number">2</span>
-            <span>Set your contribution rates and expectations</span>
+            <span>Add your retirement accounts</span>
           </div>
           <div className="step">
             <span className="step-number">3</span>
-            <span>Run simulation with 1,000+ scenarios</span>
+            <span>Configure each account's details</span>
           </div>
           <div className="step">
             <span className="step-number">4</span>
-            <span>Review projections and adjust your plan</span>
+            <span>Run simulation and review projections</span>
           </div>
         </div>
         <p className="intro-note">
-          📊 Monte Carlo simulation • 🎯 Personalized projections • 📈 Risk-adjusted scenarios
+          🎯 Personalized to your accounts • 📊 Monte Carlo simulation • 🔒 All data stays local
         </p>
       </div>
 
@@ -262,7 +434,7 @@ const RetirementCalc = () => {
           <div className="dashboard-card success">
             <div className="dashboard-value small">{formatCurrency(projectedBalance)}</div>
             <div className="dashboard-label">Projected Balance</div>
-            <div className="dashboard-sublabel">at age {retirementAge}</div>
+            <div className="dashboard-sublabel">at age {generalInfo.retirementAge}</div>
           </div>
           <div className="dashboard-card">
             <div className="dashboard-value small">{formatCurrency(monthlyRetirementIncome)}</div>
@@ -270,319 +442,252 @@ const RetirementCalc = () => {
             <div className="dashboard-sublabel">4% withdrawal rate</div>
           </div>
           <div className="dashboard-card warning">
-            <div className="dashboard-value">{total401kContribution}%</div>
-            <div className="dashboard-label">Total 401(k) Rate</div>
-            <div className="dashboard-sublabel">You + Employer</div>
+            <div className="dashboard-value small">{formatCurrency(totalAnnualContributions)}</div>
+            <div className="dashboard-label">Total Annual Contributions</div>
+            <div className="dashboard-sublabel">{accounts.length} accounts</div>
           </div>
         </div>
 
-        {/* Input Form */}
+        {/* General Information */}
+        <div className="retirement-section">
+          <div className="section-header">
+            <h2 className="section-title">
+              <div className="section-icon">
+                <Briefcase size={16} />
+              </div>
+              General Information
+            </h2>
+          </div>
+          <div className="section-content">
+            <div className="general-info-grid">
+              <div className="input-group">
+                <label className="input-label">
+                  Birth Date
+                  <span className="tooltip-icon" data-tooltip-id="birthdate">?</span>
+                </label>
+                <input
+                  type="date"
+                  className="input-field"
+                  value={generalInfo.birthDate}
+                  onChange={(e) => handleGeneralInfoChange('birthDate', e.target.value)}
+                />
+              </div>
+              <div className="input-group">
+                <label className="input-label">Current Annual Salary</label>
+                <div className="input-wrapper">
+                  <span className="input-prefix">$</span>
+                  <input
+                    type="number"
+                    className="input-field"
+                    value={generalInfo.currentSalary}
+                    onChange={(e) => handleGeneralInfoChange('currentSalary', e.target.value)}
+                    min="0"
+                  />
+                </div>
+              </div>
+              <div className="input-group">
+                <label className="input-label">Annual Salary Increase</label>
+                <div className="input-wrapper">
+                  <input
+                    type="number"
+                    className="input-field has-suffix"
+                    value={generalInfo.annualRaise}
+                    onChange={(e) => handleGeneralInfoChange('annualRaise', e.target.value)}
+                    min="0"
+                    step="0.1"
+                  />
+                  <span className="input-suffix">%</span>
+                </div>
+              </div>
+              <div className="input-group">
+                <label className="input-label">
+                  Target Retirement Age
+                  <span className="tooltip-icon" data-tooltip-id="retirementAge">?</span>
+                </label>
+                <input
+                  type="number"
+                  className="input-field"
+                  value={generalInfo.retirementAge}
+                  onChange={(e) => handleGeneralInfoChange('retirementAge', e.target.value)}
+                  min="50"
+                  max="80"
+                />
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Retirement Accounts */}
         <div className="retirement-section">
           <div className="section-header">
             <h2 className="section-title">
               <div className="section-icon">
                 <Calculator size={16} />
               </div>
-              Financial Information
+              Your Retirement Accounts
             </h2>
+            <button 
+              className="add-account-btn"
+              onClick={() => setShowAddAccount(!showAddAccount)}
+            >
+              <Plus size={16} />
+              Add Account
+            </button>
           </div>
           <div className="section-content">
-            <div className="input-form">
-              {/* General Information */}
-              <div className="input-category">
-                <div className="category-header general">
-                  <Briefcase size={16} style={{ marginRight: '0.5rem' }} />
-                  General Information
+            {/* Add Account Dropdown */}
+            {showAddAccount && (
+              <div className="add-account-dropdown">
+                <div className="dropdown-header">
+                  <h3>Select Account Type</h3>
+                  <button 
+                    className="close-btn"
+                    onClick={() => setShowAddAccount(false)}
+                  >
+                    <X size={20} />
+                  </button>
                 </div>
-                <div className="category-content">
-                  <div className="input-row">
-                    <label className="input-label">
-                      Birth Date
-                      <span className="tooltip-icon" data-tooltip-id="birthdate">?</span>
-                    </label>
-                    <input
-                      type="date"
-                      className="input-field no-prefix"
-                      value={formData.birthDate}
-                      onChange={(e) => handleInputChange('birthDate', e.target.value)}
-                    />
-                  </div>
-                  <div className="input-row">
-                    <label className="input-label">
-                      Years at Company
-                      <span className="tooltip-icon" data-tooltip-id="tenure">?</span>
-                    </label>
-                    <input
-                      type="number"
-                      className="input-field no-prefix"
-                      value={formData.currentTenure}
-                      onChange={(e) => handleInputChange('currentTenure', e.target.value)}
-                      min="0"
-                    />
-                  </div>
-                  <div className="input-row">
-                    <label className="input-label">Current Salary</label>
-                    <div className="input-wrapper">
-                      <span className="input-prefix">$</span>
-                      <input
-                        type="number"
-                        className="input-field"
-                        value={formData.currentSalary}
-                        onChange={(e) => handleInputChange('currentSalary', e.target.value)}
-                        min="0"
-                      />
-                    </div>
-                  </div>
-                  <div className="input-row">
-                    <label className="input-label">Annual Raise</label>
-                    <div className="input-wrapper">
-                      <input
-                        type="number"
-                        className="input-field has-suffix no-prefix"
-                        value={formData.yearlyRaise}
-                        onChange={(e) => handleInputChange('yearlyRaise', e.target.value)}
-                        min="0"
-                        step="0.1"
-                      />
-                      <span className="input-suffix">%</span>
-                    </div>
-                  </div>
+                <div className="account-type-grid">
+                  {Object.entries(ACCOUNT_TYPES).map(([typeKey, typeConfig]) => {
+                    const Icon = typeConfig.icon;
+                    return (
+                      <button
+                        key={typeKey}
+                        className="account-type-option"
+                        onClick={() => addAccount(typeKey)}
+                        style={{ borderColor: typeConfig.color }}
+                      >
+                        <div 
+                          className="account-type-icon"
+                          style={{ backgroundColor: typeConfig.color }}
+                        >
+                          <Icon size={24} />
+                        </div>
+                        <span className="account-type-name">{typeConfig.name}</span>
+                      </button>
+                    );
+                  })}
                 </div>
               </div>
+            )}
 
-              {/* 401(k) Information */}
-              <div className="input-category">
-                <div className="category-header k401">
-                  <Shield size={16} style={{ marginRight: '0.5rem' }} />
-                  401(k) Account
-                </div>
-                <div className="category-content">
-                  <div className="input-row">
-                    <label className="input-label">Current Balance</label>
-                    <div className="input-wrapper">
-                      <span className="input-prefix">$</span>
-                      <input
-                        type="number"
-                        className="input-field"
-                        value={formData.initialBalance401k}
-                        onChange={(e) => handleInputChange('initialBalance401k', e.target.value)}
-                        min="0"
-                      />
-                    </div>
-                  </div>
-                  <div className="input-subcategory">
-                    <div className="subcategory-title">Contribution Rates</div>
-                    <div className="input-row">
-                      <label className="input-label">Your Contribution</label>
-                      <div className="input-wrapper">
-                        <input
-                          type="number"
-                          className="input-field has-suffix no-prefix"
-                          value={formData.personal401KContribution}
-                          onChange={(e) => handleInputChange('personal401KContribution', e.target.value)}
-                          min="0"
-                          max="100"
-                          step="0.1"
-                        />
-                        <span className="input-suffix">%</span>
-                      </div>
-                    </div>
-                    <div className="input-row">
-                      <label className="input-label">Employer Match</label>
-                      <div className="input-wrapper">
-                        <input
-                          type="number"
-                          className="input-field has-suffix no-prefix"
-                          value={formData.employer401KMatch}
-                          onChange={(e) => handleInputChange('employer401KMatch', e.target.value)}
-                          min="0"
-                          max="100"
-                          step="0.1"
-                        />
-                        <span className="input-suffix">%</span>
-                      </div>
-                    </div>
-                    <div className="contribution-summary">
-                      Total Contribution: {total401kContribution}%
-                    </div>
-                  </div>
-                </div>
+            {/* Account list */}
+            {accounts.length === 0 ? (
+              <div className="empty-accounts">
+                <div className="empty-icon">💼</div>
+                <h3>No accounts added yet</h3>
+                <p>Click "Add Account" above to start building your retirement portfolio</p>
               </div>
-
-              {/* Roth IRA Information */}
-              <div className="input-category">
-                <div className="category-header rothIRA">
-                  <PieChart size={16} style={{ marginRight: '0.5rem' }} />
-                  Roth IRA
-                </div>
-                <div className="category-content">
-                  <div className="input-row">
-                    <label className="input-label">Current Contributions</label>
-                    <div className="input-wrapper">
-                      <span className="input-prefix">$</span>
-                      <input
-                        type="number"
-                        className="input-field"
-                        value={formData.initialContributionsRothIRA}
-                        onChange={(e) => handleInputChange('initialContributionsRothIRA', e.target.value)}
-                        min="0"
-                      />
+            ) : (
+              <div className="accounts-list">
+                {accounts.map(account => {
+                  const accountType = ACCOUNT_TYPES[account.type];
+                  const Icon = accountType.icon;
+                  const isCollapsed = collapsedAccounts[account.id];
+                  
+                  return (
+                    <div 
+                      key={account.id} 
+                      className="account-card"
+                      style={{ borderLeftColor: accountType.color }}
+                    >
+                      <div className="account-header">
+                        <div className="account-header-left">
+                          <button
+                            className="collapse-toggle"
+                            onClick={() => toggleAccountCollapse(account.id)}
+                          >
+                            {isCollapsed ? <ChevronDown size={20} /> : <ChevronUp size={20} />}
+                          </button>
+                          <div 
+                            className="account-icon"
+                            style={{ backgroundColor: accountType.color }}
+                          >
+                            <Icon size={20} />
+                          </div>
+                          <input
+                            type="text"
+                            className="account-name-input"
+                            value={account.name}
+                            onChange={(e) => updateAccountName(account.id, e.target.value)}
+                          />
+                        </div>
+                        <button
+                          className="remove-account-btn"
+                          onClick={() => removeAccount(account.id)}
+                        >
+                          <X size={18} />
+                        </button>
+                      </div>
+                      
+                      {!isCollapsed && (
+                        <div className="account-content">
+                          <div className="account-fields">
+                            {Object.entries(accountType.fields).map(([fieldKey, field]) => {
+                              // Skip alternate fields if primary field has value
+                              if (field.alternateFor && account.values[field.alternateFor]) {
+                                return null;
+                              }
+                              
+                              return (
+                                <div key={fieldKey} className="field-group">
+                                  <label className="field-label">
+                                    {field.label}
+                                    {field.required && <span className="required">*</span>}
+                                    {field.tooltip && (
+                                      <span 
+                                        className="tooltip-icon" 
+                                        data-tooltip-id={`${account.id}-${fieldKey}`}
+                                      >
+                                        ?
+                                      </span>
+                                    )}
+                                  </label>
+                                  <div className="input-wrapper">
+                                    {field.type === 'currency' && <span className="input-prefix">$</span>}
+                                    <input
+                                      type="number"
+                                      className={`input-field ${field.type === 'currency' ? '' : 'no-prefix'} ${field.type === 'percent' ? 'has-suffix' : ''}`}
+                                      value={account.values[fieldKey] || ''}
+                                      onChange={(e) => updateAccountValue(account.id, fieldKey, e.target.value)}
+                                      placeholder={field.type === 'currency' ? '0' : field.type === 'percent' ? '0' : ''}
+                                      step={field.type === 'percent' ? '0.1' : '1'}
+                                    />
+                                    {field.type === 'percent' && <span className="input-suffix">%</span>}
+                                  </div>
+                                  {field.tooltip && (
+                                    <ReactToolTip 
+                                      id={`${account.id}-${fieldKey}`} 
+                                      content={field.tooltip} 
+                                    />
+                                  )}
+                                </div>
+                              );
+                            })}
+                          </div>
+                          
+                          {/* Account Summary */}
+                          <div className="account-summary">
+                            <div className="summary-item">
+                              <span className="summary-label">Current Balance:</span>
+                              <span className="summary-value">
+                                {formatCurrency(parseFloat(account.values.currentBalance) || 0)}
+                              </span>
+                            </div>
+                            <div className="summary-item">
+                              <span className="summary-label">Expected Return:</span>
+                              <span className="summary-value">
+                                {account.values.expectedReturn || accountType.fields.expectedReturn?.default || 7}%
+                              </span>
+                            </div>
+                          </div>
+                        </div>
+                      )}
                     </div>
-                  </div>
-                  <div className="input-row">
-                    <label className="input-label">Current Earnings</label>
-                    <div className="input-wrapper">
-                      <span className="input-prefix">$</span>
-                      <input
-                        type="number"
-                        className="input-field"
-                        value={formData.initialEarningsRothIRA}
-                        onChange={(e) => handleInputChange('initialEarningsRothIRA', e.target.value)}
-                        min="0"
-                      />
-                    </div>
-                  </div>
-                  <div className="input-row">
-                    <label className="input-label">Annual Contribution</label>
-                    <div className="input-wrapper">
-                      <input
-                        type="number"
-                        className="input-field has-suffix no-prefix"
-                        value={formData.RothIRAContribution}
-                        onChange={(e) => handleInputChange('RothIRAContribution', e.target.value)}
-                        min="0"
-                        max="100"
-                        step="0.1"
-                      />
-                      <span className="input-suffix">%</span>
-                    </div>
-                  </div>
-                </div>
+                  );
+                })}
               </div>
-
-              {/* Company Stock */}
-              <div className="input-category">
-                <div className="category-header stock">
-                  <TrendingUp size={16} style={{ marginRight: '0.5rem' }} />
-                  Company Stock
-                </div>
-                <div className="category-content">
-                  <div className="input-row">
-                    <label className="input-label">Current Balance</label>
-                    <div className="input-wrapper">
-                      <span className="input-prefix">$</span>
-                      <input
-                        type="number"
-                        className="input-field"
-                        value={formData.initialBalanceStock}
-                        onChange={(e) => handleInputChange('initialBalanceStock', e.target.value)}
-                        min="0"
-                      />
-                    </div>
-                  </div>
-                  <div className="input-subcategory">
-                    <div className="subcategory-title">Stock Allocation</div>
-                    <div className="input-row">
-                      <label className="input-label">
-                        Annual Allocation
-                        <span className="tooltip-icon" data-tooltip-id="allocation">?</span>
-                      </label>
-                      <div className="input-wrapper">
-                        <input
-                          type="number"
-                          className="input-field has-suffix no-prefix"
-                          value={formData.allocationStock}
-                          onChange={(e) => handleInputChange('allocationStock', e.target.value)}
-                          min="0"
-                          max="100"
-                          step="0.1"
-                        />
-                        <span className="input-suffix">%</span>
-                      </div>
-                    </div>
-                    <div className="input-row">
-                      <label className="input-label">
-                        Allocation Variance
-                        <span className="tooltip-icon" data-tooltip-id="allocationVariance">?</span>
-                      </label>
-                      <div className="input-wrapper">
-                        <input
-                          type="number"
-                          className="input-field has-suffix no-prefix"
-                          value={formData.allocationStockVariance}
-                          onChange={(e) => handleInputChange('allocationStockVariance', e.target.value)}
-                          min="0"
-                          max="50"
-                          step="0.1"
-                        />
-                        <span className="input-suffix">%</span>
-                      </div>
-                    </div>
-                    <div className="range-display">
-                      Allocation Range: {parseFloat(formData.allocationStock) - parseFloat(formData.allocationStockVariance)}% 
-                      to {parseFloat(formData.allocationStock) + parseFloat(formData.allocationStockVariance)}%
-                    </div>
-                  </div>
-                  <div className="input-subcategory">
-                    <div className="subcategory-title">Expected Returns</div>
-                    <div className="input-row">
-                      <label className="input-label">
-                        Annual Return
-                        <span className="tooltip-icon" data-tooltip-id="stockReturn">?</span>
-                      </label>
-                      <div className="input-wrapper">
-                        <input
-                          type="number"
-                          className="input-field has-suffix no-prefix"
-                          value={formData.expectedStockYoY}
-                          onChange={(e) => handleInputChange('expectedStockYoY', e.target.value)}
-                          min="0"
-                          max="100"
-                          step="0.1"
-                        />
-                        <span className="input-suffix">%</span>
-                      </div>
-                    </div>
-                    <div className="input-row">
-                      <label className="input-label">
-                        Return Variance
-                        <span className="tooltip-icon" data-tooltip-id="stockVariance">?</span>
-                      </label>
-                      <div className="input-wrapper">
-                        <input
-                          type="number"
-                          className="input-field has-suffix no-prefix"
-                          value={formData.varianceStockYoY}
-                          onChange={(e) => handleInputChange('varianceStockYoY', e.target.value)}
-                          min="0"
-                          max="50"
-                          step="0.1"
-                        />
-                        <span className="input-suffix">%</span>
-                      </div>
-                    </div>
-                    <div className="range-display">
-                      Return Range: {parseFloat(formData.expectedStockYoY) - parseFloat(formData.varianceStockYoY)}% 
-                      to {parseFloat(formData.expectedStockYoY) + parseFloat(formData.varianceStockYoY)}%
-                    </div>
-                  </div>
-                  <div className="input-row">
-                    <label className="input-label">
-                      Vesting Period (Years)
-                      <span className="tooltip-icon" data-tooltip-id="vesting">?</span>
-                    </label>
-                    <input
-                      type="number"
-                      className="input-field no-prefix"
-                      value={formData.vestingPeriod}
-                      onChange={(e) => handleInputChange('vestingPeriod', e.target.value)}
-                      min="0"
-                      max="10"
-                    />
-                  </div>
-                </div>
-              </div>
-            </div>
+            )}
           </div>
         </div>
 
@@ -591,11 +696,11 @@ const RetirementCalc = () => {
           <button 
             className="btn-primary" 
             onClick={runSimulation}
-            disabled={isCalculating}
+            disabled={isCalculating || accounts.length === 0}
           >
             {isCalculating ? (
               <>
-                <div className="loading-spinner" style={{ width: '20px', height: '20px', borderWidth: '2px' }} />
+                <div className="loading-spinner" />
                 Running Simulation...
               </>
             ) : (
@@ -612,63 +717,6 @@ const RetirementCalc = () => {
           <>
             <div className="section-divider" />
 
-            {/* Statistics Summary */}
-            <div className="retirement-section">
-              <div className="section-header">
-                <h2 className="section-title">
-                  <div className="section-icon">
-                    <Target size={16} />
-                  </div>
-                  Simulation Results - Final Year Projections
-                </h2>
-              </div>
-              <div className="section-content">
-                <div className="statistics-grid">
-                  {['401k', 'RothIRA', 'Stock'].map(category => {
-                    const stats = simulationResults.statistics[category][yearsToRetirement - 1];
-                    const categoryNames = {
-                      '401k': '401(k) Account',
-                      'RothIRA': 'Roth IRA',
-                      'Stock': 'Company Stock'
-                    };
-                    
-                    return (
-                      <div key={category} className="stat-card">
-                        <div className="stat-card-header">
-                          <div className={`stat-icon ${category.toLowerCase()}`}>
-                            {category === '401k' && <Shield size={20} />}
-                            {category === 'RothIRA' && <PieChart size={20} />}
-                            {category === 'Stock' && <TrendingUp size={20} />}
-                          </div>
-                          <div className="stat-title">{categoryNames[category]}</div>
-                        </div>
-                        <div className="stat-metrics">
-                          <div className="metric">
-                            <div className="metric-label">Conservative</div>
-                            <div className="metric-value">{formatCurrency(stats.q1)}</div>
-                          </div>
-                          <div className="metric">
-                            <div className="metric-label">Expected</div>
-                            <div className="metric-value">{formatCurrency(stats.median)}</div>
-                          </div>
-                          <div className="metric">
-                            <div className="metric-label">Optimistic</div>
-                            <div className="metric-value">{formatCurrency(stats.q3)}</div>
-                          </div>
-                          <div className="metric">
-                            <div className="metric-label">Range</div>
-                            <div className="metric-value">
-                              {formatCurrency(stats.max - stats.min)}
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-                    );
-                  })}
-                </div>
-              </div>
-            </div>
-
             {/* Chart Visualization */}
             <div className="retirement-section">
               <div className="section-header">
@@ -676,7 +724,7 @@ const RetirementCalc = () => {
                   <div className="section-icon">
                     <TrendingUp size={16} />
                   </div>
-                  Total Portfolio Projection Over Time
+                  Total Portfolio Projection
                 </h2>
               </div>
               <div className="section-content">
@@ -755,53 +803,39 @@ const RetirementCalc = () => {
               </div>
             </div>
 
-            {/* Detailed Results Table */}
+            {/* Final Projections Summary */}
             <div className="retirement-section">
               <div className="section-header">
                 <h2 className="section-title">
                   <div className="section-icon">
-                    <Award size={16} />
+                    <Target size={16} />
                   </div>
-                  Year-by-Year Projections
+                  Retirement Projections Summary
                 </h2>
               </div>
               <div className="section-content">
-                <div className="results-table-container">
-                  <table className="results-table">
-                    <thead>
-                      <tr>
-                        <th>Year</th>
-                        <th>Age</th>
-                        <th className="category-401k">401(k) Median</th>
-                        <th className="category-rothira">Roth IRA Median</th>
-                        <th className="category-stock">Stock Median</th>
-                        <th>Total (Conservative)</th>
-                        <th>Total (Expected)</th>
-                        <th>Total (Optimistic)</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {simulationResults.statistics.total.map((stat, index) => {
-                        const age = currentAge + index + 1;
-                        const stats401k = simulationResults.statistics['401k'][index];
-                        const statsRoth = simulationResults.statistics['RothIRA'][index];
-                        const statsStock = simulationResults.statistics['Stock'][index];
-                        
-                        return (
-                          <tr key={index}>
-                            <td>{stat.year}</td>
-                            <td>{age}</td>
-                            <td className="category-401k">{formatCurrency(stats401k.median)}</td>
-                            <td className="category-rothira">{formatCurrency(statsRoth.median)}</td>
-                            <td className="category-stock">{formatCurrency(statsStock.median)}</td>
-                            <td>{formatCurrency(stat.q1)}</td>
-                            <td style={{ fontWeight: 'bold' }}>{formatCurrency(stat.median)}</td>
-                            <td>{formatCurrency(stat.q3)}</td>
-                          </tr>
-                        );
-                      })}
-                    </tbody>
-                  </table>
+                <div className="projections-summary">
+                  <div className="projection-card">
+                    <h3>Conservative Scenario</h3>
+                    <div className="projection-amount">
+                      {formatCurrency(simulationResults.statistics.total[yearsToRetirement - 1]?.q1 || 0)}
+                    </div>
+                    <p>Bottom 25% of outcomes</p>
+                  </div>
+                  <div className="projection-card primary">
+                    <h3>Expected Scenario</h3>
+                    <div className="projection-amount">
+                      {formatCurrency(simulationResults.statistics.total[yearsToRetirement - 1]?.median || 0)}
+                    </div>
+                    <p>Most likely outcome</p>
+                  </div>
+                  <div className="projection-card">
+                    <h3>Optimistic Scenario</h3>
+                    <div className="projection-amount">
+                      {formatCurrency(simulationResults.statistics.total[yearsToRetirement - 1]?.q3 || 0)}
+                    </div>
+                    <p>Top 25% of outcomes</p>
+                  </div>
                 </div>
               </div>
             </div>
@@ -809,12 +843,12 @@ const RetirementCalc = () => {
         )}
 
         {/* Empty State */}
-        {!hasCalculated && !isCalculating && (
+        {!hasCalculated && !isCalculating && accounts.length > 0 && (
           <div className="retirement-section">
             <div className="empty-state">
               <div className="empty-state-icon">📊</div>
-              <h3>Ready to Plan Your Retirement?</h3>
-              <p>Enter your information above and run the simulation to see your projected retirement savings.</p>
+              <h3>Ready to See Your Future?</h3>
+              <p>You've added {accounts.length} account{accounts.length > 1 ? 's' : ''}. Click "Run Monte Carlo Simulation" to see your retirement projections.</p>
             </div>
           </div>
         )}
@@ -822,12 +856,7 @@ const RetirementCalc = () => {
 
       {/* Tooltips */}
       <ReactToolTip id="birthdate" content="Used to calculate your current age and years to retirement" />
-      <ReactToolTip id="tenure" content="Years of service at your current employer, used for vesting calculations" />
-      <ReactToolTip id="allocation" content="Percentage of salary your employer allocates as stock compensation" />
-      <ReactToolTip id="allocationVariance" content="How much the stock allocation can vary year to year" />
-      <ReactToolTip id="stockReturn" content="Expected annual return for company stock" />
-      <ReactToolTip id="stockVariance" content="How much stock returns can vary from the expected return" />
-      <ReactToolTip id="vesting" content="Number of years before stock grants are fully owned by you" />
+      <ReactToolTip id="retirementAge" content="The age at which you plan to retire" />
     </div>
   );
 };
