@@ -19,82 +19,17 @@ import {
 import SuggestionBox from '../SuggestionBox/SuggestionBox';
 import './BudgetPlanner.css';
 
-// State tax data (2024 rates)
-const STATE_TAX_RATES = {
-  'AL': { rate: 0.05, name: 'Alabama' },
-  'AK': { rate: 0, name: 'Alaska' },
-  'AZ': { rate: 0.0459, name: 'Arizona' },
-  'AR': { rate: 0.059, name: 'Arkansas' },
-  'CA': { rate: 0.093, name: 'California' },
-  'CO': { rate: 0.044, name: 'Colorado' },
-  'CT': { rate: 0.0635, name: 'Connecticut' },
-  'DE': { rate: 0.066, name: 'Delaware' },
-  'FL': { rate: 0, name: 'Florida' },
-  'GA': { rate: 0.0575, name: 'Georgia' },
-  'HI': { rate: 0.082, name: 'Hawaii' },
-  'ID': { rate: 0.058, name: 'Idaho' },
-  'IL': { rate: 0.0495, name: 'Illinois' },
-  'IN': { rate: 0.0323, name: 'Indiana' },
-  'IA': { rate: 0.086, name: 'Iowa' },
-  'KS': { rate: 0.057, name: 'Kansas' },
-  'KY': { rate: 0.05, name: 'Kentucky' },
-  'LA': { rate: 0.0425, name: 'Louisiana' },
-  'ME': { rate: 0.0715, name: 'Maine' },
-  'MD': { rate: 0.0575, name: 'Maryland' },
-  'MA': { rate: 0.05, name: 'Massachusetts' },
-  'MI': { rate: 0.0425, name: 'Michigan' },
-  'MN': { rate: 0.0785, name: 'Minnesota' },
-  'MS': { rate: 0.05, name: 'Mississippi' },
-  'MO': { rate: 0.054, name: 'Missouri' },
-  'MT': { rate: 0.069, name: 'Montana' },
-  'NE': { rate: 0.0684, name: 'Nebraska' },
-  'NV': { rate: 0, name: 'Nevada' },
-  'NH': { rate: 0, name: 'New Hampshire' },
-  'NJ': { rate: 0.0897, name: 'New Jersey' },
-  'NM': { rate: 0.049, name: 'New Mexico' },
-  'NY': { rate: 0.0685, name: 'New York' },
-  'NC': { rate: 0.049, name: 'North Carolina' },
-  'ND': { rate: 0.029, name: 'North Dakota' },
-  'OH': { rate: 0.0399, name: 'Ohio' },
-  'OK': { rate: 0.05, name: 'Oklahoma' },
-  'OR': { rate: 0.099, name: 'Oregon' },
-  'PA': { rate: 0.0307, name: 'Pennsylvania' },
-  'RI': { rate: 0.0599, name: 'Rhode Island' },
-  'SC': { rate: 0.07, name: 'South Carolina' },
-  'SD': { rate: 0, name: 'South Dakota' },
-  'TN': { rate: 0, name: 'Tennessee' },
-  'TX': { rate: 0, name: 'Texas' },
-  'UT': { rate: 0.0495, name: 'Utah' },
-  'VT': { rate: 0.0875, name: 'Vermont' },
-  'VA': { rate: 0.0575, name: 'Virginia' },
-  'WA': { rate: 0, name: 'Washington' },
-  'WV': { rate: 0.065, name: 'West Virginia' },
-  'WI': { rate: 0.0765, name: 'Wisconsin' },
-  'WY': { rate: 0, name: 'Wyoming' },
-  'DC': { rate: 0.0895, name: 'District of Columbia' }
-};
-
-// 2024 Federal tax brackets
-const FEDERAL_TAX_BRACKETS = {
-  single: [
-    { min: 0, max: 11600, rate: 0.10 },
-    { min: 11600, max: 47150, rate: 0.12 },
-    { min: 47150, max: 100525, rate: 0.22 },
-    { min: 100525, max: 191950, rate: 0.24 },
-    { min: 191950, max: 243725, rate: 0.32 },
-    { min: 243725, max: 609350, rate: 0.35 },
-    { min: 609350, max: Infinity, rate: 0.37 }
-  ],
-  married: [
-    { min: 0, max: 23200, rate: 0.10 },
-    { min: 23200, max: 94300, rate: 0.12 },
-    { min: 94300, max: 201050, rate: 0.22 },
-    { min: 201050, max: 383900, rate: 0.24 },
-    { min: 383900, max: 487450, rate: 0.32 },
-    { min: 487450, max: 731200, rate: 0.35 },
-    { min: 731200, max: Infinity, rate: 0.37 }
-  ]
-};
+// Import data modules
+import { getDefaultCategories } from './BudgetCategories';
+import { 
+  calculateFederalTax, 
+  getMarginalRate, 
+  STANDARD_DEDUCTIONS 
+} from './FEDERAL_TAX_BRACKETS';
+import { 
+  STATE_TAX_RATES, 
+  calculateAllTaxes 
+} from './STATE_TAX_RATES';
 
 const BudgetPlanner = () => {
   const [grossIncome, setGrossIncome] = useState('');
@@ -108,98 +43,8 @@ const BudgetPlanner = () => {
   const [editingSubcategory, setEditingSubcategory] = useState(null);
   const [editingValue, setEditingValue] = useState('');
 
-  const [categories, setCategories] = useState({
-    'Housing': {
-      label: 'Housing',
-      recommended: 0.28,
-      color: '#D98245',
-      subcategories: {
-        'Rent/Mortgage': { monthly: 0 },
-        'Property Tax': { monthly: 0 },
-        'Insurance': { monthly: 0 },
-        'Utilities': { monthly: 0 },
-        'HOA Fees': { monthly: 0 },
-      }
-    },
-    'Food': {
-      label: 'Food',
-      recommended: 0.12,
-      color: '#C5563F',
-      subcategories: {
-        'Groceries': { monthly: 0 },
-        'Dining Out': { monthly: 0 },
-        'Coffee/Drinks': { monthly: 0 },
-      }
-    },
-    'Transportation': {
-      label: 'Transportation',
-      recommended: 0.15,
-      color: '#237F74',
-      subcategories: {
-        'Car Payment': { monthly: 0 },
-        'Gas': { monthly: 0 },
-        'Insurance': { monthly: 0 },
-        'Maintenance': { monthly: 0 },
-        'Public Transit': { monthly: 0 },
-        'Parking/Tolls': { monthly: 0 },
-      }
-    },
-    'Entertainment': {
-      label: 'Entertainment',
-      recommended: 0.05,
-      color: '#8B4513',
-      subcategories: {
-        'Streaming Services': { monthly: 0 },
-        'Movies/Events': { monthly: 0 },
-        'Hobbies': { monthly: 0 },
-        'Gaming': { monthly: 0 },
-      }
-    },
-    'Personal': {
-      label: 'Personal & Shopping',
-      recommended: 0.05,
-      color: '#1C3645',
-      subcategories: {
-        'Clothing': { monthly: 0 },
-        'Personal Care': { monthly: 0 },
-        'Gym/Fitness': { monthly: 0 },
-        'Subscriptions': { monthly: 0 },
-        'Phone/Internet': { monthly: 0 },
-      }
-    },
-    'Healthcare': {
-      label: 'Healthcare',
-      recommended: 0.10,
-      color: '#C7A653',
-      subcategories: {
-        'Insurance Premium': { monthly: 0 },
-        'Medical Expenses': { monthly: 0 },
-        'Dental/Vision': { monthly: 0 },
-        'Prescriptions': { monthly: 0 },
-      }
-    },
-    'Education': {
-      label: 'Education & Development',
-      recommended: 0.05,
-      color: '#4B0082',
-      subcategories: {
-        'Student Loans': { monthly: 0 },
-        'Courses/Training': { monthly: 0 },
-        'Books/Resources': { monthly: 0 },
-      }
-    },
-    'Savings': {
-      label: 'Savings & Investments',
-      recommended: 0.20,
-      color: '#27A25B',
-      subcategories: {
-        'Emergency Fund': { monthly: 0 },
-        'Investment Account': { monthly: 0 },
-        'IRA/Roth IRA': { monthly: 0 },
-        'Other Savings': { monthly: 0 },
-      }
-    },
-  });
+  // Initialize categories from the data module
+  const [categories, setCategories] = useState(getDefaultCategories());
 
   // Helper function to safely parse numbers
   const parseNumber = (value) => {
@@ -217,32 +62,6 @@ const BudgetPlanner = () => {
   const formatCurrency = (value) => {
     if (isNaN(value) || !isFinite(value)) return '0';
     return Math.round(value).toLocaleString();
-  };
-
-  // Calculate federal tax
-  const calculateFederalTax = (taxableIncome, status) => {
-    const brackets = FEDERAL_TAX_BRACKETS[status];
-    let tax = 0;
-    
-    for (const bracket of brackets) {
-      if (taxableIncome > bracket.min) {
-        const taxableInThisBracket = Math.min(taxableIncome - bracket.min, bracket.max - bracket.min);
-        tax += taxableInThisBracket * bracket.rate;
-      }
-    }
-    
-    return tax;
-  };
-
-  // Get current marginal tax bracket
-  const getMarginalRate = (taxableIncome, status) => {
-    const brackets = [...FEDERAL_TAX_BRACKETS[status]].reverse(); // Create copy before reversing
-    for (const bracket of brackets) {
-      if (taxableIncome > bracket.min) {
-        return bracket.rate;
-      }
-    }
-    return 0.10;
   };
 
   // Expand/Collapse all categories
@@ -315,34 +134,29 @@ const BudgetPlanner = () => {
     return `rgba(${r}, ${g}, ${b}, ${opacity})`;
   }
 
-  // Tax calculations
+  // Tax calculations using imported functions
   const grossIncomeNum = parseNumber(grossIncome);
   const k401ContributionNum = parseNumber(k401Contribution);
   const iraContributionNum = parseNumber(iraContribution);
-  const standardDeduction = filingStatus === 'married' ? 29200 : 14600;
+  const standardDeduction = STANDARD_DEDUCTIONS[filingStatus];
   
   // Calculate taxable income
   const traditionalRetirementContributions = (isRoth401k ? 0 : k401ContributionNum) + (isRothIra ? 0 : iraContributionNum);
   const adjustedGrossIncome = grossIncomeNum - traditionalRetirementContributions;
   const taxableIncome = Math.max(0, adjustedGrossIncome - standardDeduction);
   
-  // Calculate all taxes
+  // Calculate all taxes using imported helper
   const federalTax = calculateFederalTax(taxableIncome, filingStatus);
-  const socialSecurityTax = Math.min(grossIncomeNum * 0.062, 168600 * 0.062); // 2024 cap
-  const medicareTax = grossIncomeNum * 0.0145;
-  const additionalMedicareTax = grossIncomeNum > (filingStatus === 'married' ? 250000 : 200000) 
-    ? (grossIncomeNum - (filingStatus === 'married' ? 250000 : 200000)) * 0.009 
-    : 0;
-  const stateTax = taxableIncome * STATE_TAX_RATES[selectedState].rate;
+  const marginalRate = getMarginalRate(taxableIncome, filingStatus);
+  const taxDetails = calculateAllTaxes(grossIncomeNum, taxableIncome, filingStatus, selectedState);
   
-  const totalTax = federalTax + socialSecurityTax + medicareTax + additionalMedicareTax + stateTax;
+  const totalTax = federalTax + taxDetails.totalPayrollTax + taxDetails.totalStateTax;
   const totalRetirementContributions = k401ContributionNum + iraContributionNum;
   const netIncome = grossIncomeNum - totalRetirementContributions - totalTax;
   
   // Calculate effective rates
   const effectiveFederalRate = grossIncomeNum > 0 ? federalTax / grossIncomeNum : 0;
   const effectiveTotalRate = grossIncomeNum > 0 ? totalTax / grossIncomeNum : 0;
-  const marginalRate = getMarginalRate(taxableIncome, filingStatus);
 
   const calculateTotalExpenses = () => {
     return Object.values(categories).reduce((total, category) => {
@@ -801,17 +615,17 @@ const BudgetPlanner = () => {
                     </tr>
                     <tr className="tax-row">
                       <td>Social Security</td>
-                      <td>${formatCurrency(socialSecurityTax)}</td>
+                      <td>${formatCurrency(taxDetails.socialSecurityTax)}</td>
                       <td>6.2%</td>
                     </tr>
                     <tr className="tax-row">
                       <td>Medicare</td>
-                      <td>${formatCurrency(medicareTax + additionalMedicareTax)}</td>
-                      <td>1.45%{additionalMedicareTax > 0 && ' + 0.9%'}</td>
+                      <td>${formatCurrency(taxDetails.medicareTax + taxDetails.additionalMedicareTax)}</td>
+                      <td>1.45%{taxDetails.additionalMedicareTax > 0 && ' + 0.9%'}</td>
                     </tr>
                     <tr className="tax-row">
                       <td>{STATE_TAX_RATES[selectedState].name} State Tax</td>
-                      <td>${formatCurrency(stateTax)}</td>
+                      <td>${formatCurrency(taxDetails.stateTax)}</td>
                       <td>{formatPercent(STATE_TAX_RATES[selectedState].rate * 100)}%</td>
                     </tr>
                     <tr className="tax-total">

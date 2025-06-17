@@ -4,7 +4,7 @@ import './HomePage.css';
 // Import your existing icons
 import { GiPayMoney, GiCutDiamond, GiFamilyHouse } from "react-icons/gi";
 import { TbPigMoney } from "react-icons/tb";
-import { FaUmbrellaBeach } from "react-icons/fa";
+import { FaUmbrellaBeach, FaAngleDoubleDown  } from "react-icons/fa";
 import { BsGraphUpArrow } from "react-icons/bs";
 
 function HomePage() {
@@ -74,6 +74,16 @@ function HomePage() {
       {/* Hero Section */}
       <div className="hero-section">
        
+
+
+        {/* Title */}
+        <div className="home-title">
+          <h1 className="main-title">
+            <span className="wealthstud-text">WEALTHSTUD</span>
+            <span className="io-text">.IO</span>
+          </h1>
+          <p className="home-subtitle">FINANCIAL WELLNESS TOOLS</p>
+        </div>
         {/* Loader Animation */}
         <div class="loader">
           <div class="loader-square"></div>
@@ -84,21 +94,12 @@ function HomePage() {
           <div class="loader-square"></div>
           <div class="loader-square"></div>
         </div>
-
-        {/* Title */}
-        <div className="home-title">
-          <h1 className="main-title">
-            <span className="wealthstud-text">WEALTHSTUD</span>
-            <span className="io-text">.IO</span>
-          </h1>
-          <p className="home-subtitle">FINANCIAL WELLNESS TOOLS</p>
-        </div>
-
         {/* Call to action */}
         <p className="hero-description">
           Take control of your financial future with our comprehensive suite of calculators and planning tools
         </p>
-        
+        <FaAngleDoubleDown size={32}/>
+
       </div>
       
       {/* Tools Grid */}
@@ -177,7 +178,10 @@ function HomePage() {
           </div>
         </div>
       </div>
+      <SuggestionBox />
+      
     </div>
+
   );
 }
 
